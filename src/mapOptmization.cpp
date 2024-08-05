@@ -245,9 +245,13 @@ public:
         {
             PCL_ERROR("Couldn't read SurfMap.pcd file \n");
         }
-
+        // scan-matching을 진행할 input feature map에 대한 kdtree 1회만 생성
         kdtreeCornerFromMap.reset(new pcl::KdTreeFLANN<PointType>());
         kdtreeSurfFromMap.reset(new pcl::KdTreeFLANN<PointType>());
+
+        kdtreeCornerFromMap->setInputCloud(cornerMap);
+        kdtreeSurfFromMap->setInputCloud(surfMap);
+
 
         for (int i = 0; i < 6; ++i){
             transformTobeMapped[i] = 0;
@@ -276,7 +280,7 @@ public:
 
             updateInitialGuess();
 
-            extractSurroundingKeyFrames();
+            // extractSurroundingKeyFrames();
 
             downsampleCurrentScan();
 
@@ -884,6 +888,10 @@ public:
 
     void extractNearby()
     {
+        /*
+        주변의 keyframe들 중에서 가까운 keyframe을 selec하는 과정. 
+        그리고 나서 keyframe을 map으로 만들어서 넘기게 됨.
+        */
         pcl::PointCloud<PointType>::Ptr surroundingKeyPosesDS(new pcl::PointCloud<PointType>());
 
         std::vector<int> pointSearchInd;
@@ -1018,7 +1026,6 @@ public:
     void cornerOptimization()
     {
         updatePointAssociateToMap();
-
         #pragma omp parallel for num_threads(numberOfCores)
         for (int i = 0; i < laserCloudCornerLastDSNum; i++)
         {
@@ -1029,40 +1036,34 @@ public:
             pointOri = laserCloudCornerLastDS->points[i];
             pointAssociateToMap(&pointOri, &pointSel);
             kdtreeCornerFromMap->nearestKSearch(pointSel, 5, pointSearchInd, pointSearchSqDis);
-
             cv::Mat matA1(3, 3, CV_32F, cv::Scalar::all(0));
             cv::Mat matD1(1, 3, CV_32F, cv::Scalar::all(0));
             cv::Mat matV1(3, 3, CV_32F, cv::Scalar::all(0));
-                    
             if (pointSearchSqDis[4] < 1.0) {
                 float cx = 0, cy = 0, cz = 0;
                 for (int j = 0; j < 5; j++) {
-                    cx += laserCloudCornerFromMapDS->points[pointSearchInd[j]].x;
-                    cy += laserCloudCornerFromMapDS->points[pointSearchInd[j]].y;
-                    cz += laserCloudCornerFromMapDS->points[pointSearchInd[j]].z;
+                    cx += cornerMap->points[pointSearchInd[j]].x;
+                    cy += cornerMap->points[pointSearchInd[j]].y;
+                    cz += cornerMap->points[pointSearchInd[j]].z;
                 }
                 cx /= 5; cy /= 5;  cz /= 5;
 
                 float a11 = 0, a12 = 0, a13 = 0, a22 = 0, a23 = 0, a33 = 0;
                 for (int j = 0; j < 5; j++) {
-                    float ax = laserCloudCornerFromMapDS->points[pointSearchInd[j]].x - cx;
-                    float ay = laserCloudCornerFromMapDS->points[pointSearchInd[j]].y - cy;
-                    float az = laserCloudCornerFromMapDS->points[pointSearchInd[j]].z - cz;
+                    float ax = cornerMap->points[pointSearchInd[j]].x - cx;
+                    float ay = cornerMap->points[pointSearchInd[j]].y - cy;
+                    float az = cornerMap->points[pointSearchInd[j]].z - cz;
 
                     a11 += ax * ax; a12 += ax * ay; a13 += ax * az;
                     a22 += ay * ay; a23 += ay * az;
                     a33 += az * az;
                 }
                 a11 /= 5; a12 /= 5; a13 /= 5; a22 /= 5; a23 /= 5; a33 /= 5;
-
                 matA1.at<float>(0, 0) = a11; matA1.at<float>(0, 1) = a12; matA1.at<float>(0, 2) = a13;
                 matA1.at<float>(1, 0) = a12; matA1.at<float>(1, 1) = a22; matA1.at<float>(1, 2) = a23;
                 matA1.at<float>(2, 0) = a13; matA1.at<float>(2, 1) = a23; matA1.at<float>(2, 2) = a33;
-
                 cv::eigen(matA1, matD1, matV1);
-
                 if (matD1.at<float>(0, 0) > 3 * matD1.at<float>(0, 1)) {
-
                     float x0 = pointSel.x;
                     float y0 = pointSel.y;
                     float z0 = pointSel.z;
@@ -1121,7 +1122,6 @@ public:
             pointOri = laserCloudSurfLastDS->points[i];
             pointAssociateToMap(&pointOri, &pointSel); 
             kdtreeSurfFromMap->nearestKSearch(pointSel, 5, pointSearchInd, pointSearchSqDis);
-
             Eigen::Matrix<float, 5, 3> matA0;
             Eigen::Matrix<float, 5, 1> matB0;
             Eigen::Vector3f matX0;
@@ -1132,9 +1132,9 @@ public:
 
             if (pointSearchSqDis[4] < 1.0) {
                 for (int j = 0; j < 5; j++) {
-                    matA0(j, 0) = laserCloudSurfFromMapDS->points[pointSearchInd[j]].x;
-                    matA0(j, 1) = laserCloudSurfFromMapDS->points[pointSearchInd[j]].y;
-                    matA0(j, 2) = laserCloudSurfFromMapDS->points[pointSearchInd[j]].z;
+                    matA0(j, 0) = surfMap->points[pointSearchInd[j]].x;
+                    matA0(j, 1) = surfMap->points[pointSearchInd[j]].y;
+                    matA0(j, 2) = surfMap->points[pointSearchInd[j]].z;
                 }
 
                 matX0 = matA0.colPivHouseholderQr().solve(matB0);
@@ -1149,9 +1149,9 @@ public:
 
                 bool planeValid = true;
                 for (int j = 0; j < 5; j++) {
-                    if (fabs(pa * laserCloudSurfFromMapDS->points[pointSearchInd[j]].x +
-                             pb * laserCloudSurfFromMapDS->points[pointSearchInd[j]].y +
-                             pc * laserCloudSurfFromMapDS->points[pointSearchInd[j]].z + pd) > 0.2) {
+                    if (fabs(pa * surfMap->points[pointSearchInd[j]].x +
+                             pb * surfMap->points[pointSearchInd[j]].y +
+                             pc * surfMap->points[pointSearchInd[j]].z + pd) > 0.2) {
                         planeValid = false;
                         break;
                     }
@@ -1330,9 +1330,8 @@ public:
 
         if (laserCloudCornerLastDSNum > edgeFeatureMinValidNum && laserCloudSurfLastDSNum > surfFeatureMinValidNum)
         {
-            kdtreeCornerFromMap->setInputCloud(laserCloudCornerFromMapDS);
-            kdtreeSurfFromMap->setInputCloud(laserCloudSurfFromMapDS);
-
+            // kdtreeCornerFromMap->setInputCloud(laserCloudCornerFromMapDS);
+            // kdtreeSurfFromMap->setInputCloud(laserCloudSurfFromMapDS);
             for (int iterCount = 0; iterCount < 30; iterCount++)
             {
                 laserCloudOri->clear();
@@ -1542,7 +1541,6 @@ public:
     {
         if (saveFrame() == false)
             return;
-
         // odom factor
         addOdomFactor();
 
