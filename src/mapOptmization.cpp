@@ -83,7 +83,8 @@ public:
 
     std::deque<nav_msgs::Odometry> gpsQueue;
     lio_sam::cloud_info cloudInfo;
-
+    
+    // 여태까지의 keyframe의 feature를 담는 vector. 이거를 기존 map으로 변경해야 함. 
     vector<pcl::PointCloud<PointType>::Ptr> cornerCloudKeyFrames;
     vector<pcl::PointCloud<PointType>::Ptr> surfCloudKeyFrames;
     
@@ -120,7 +121,8 @@ public:
     pcl::KdTreeFLANN<PointType>::Ptr kdtreeCornerFromMap;
     pcl::KdTreeFLANN<PointType>::Ptr kdtreeSurfFromMap;
 
-    pcl::KdTreeFLANN<PointType>::Ptr kdtreeSurroundingKeyPoses;
+    pcl::KdTreeFLANN<PointType>::Ptr kdtreeSurroundingKeyPosesCorner;
+    pcl::KdTreeFLANN<PointType>::Ptr kdtreeSurroundingKeyPosesSurf;
     pcl::KdTreeFLANN<PointType>::Ptr kdtreeHistoryKeyPoses;
 
     pcl::VoxelGrid<PointType> downSizeFilterCorner;
@@ -157,6 +159,8 @@ public:
     Eigen::Affine3f incrementalOdometryAffineFront;
     Eigen::Affine3f incrementalOdometryAffineBack;
 
+    bool kdtree_for_cornerMap = true;
+    bool kdtree_for_surfMap = true;
 
     mapOptimization()
     {
@@ -202,7 +206,8 @@ public:
         copy_cloudKeyPoses3D.reset(new pcl::PointCloud<PointType>());
         copy_cloudKeyPoses6D.reset(new pcl::PointCloud<PointTypePose>());
 
-        kdtreeSurroundingKeyPoses.reset(new pcl::KdTreeFLANN<PointType>());
+        kdtreeSurroundingKeyPosesCorner.reset(new pcl::KdTreeFLANN<PointType>());
+        kdtreeSurroundingKeyPosesSurf.reset(new pcl::KdTreeFLANN<PointType>());
         kdtreeHistoryKeyPoses.reset(new pcl::KdTreeFLANN<PointType>());
 
         laserCloudCornerLast.reset(new pcl::PointCloud<PointType>()); // corner feature set from odoOptimization
@@ -809,6 +814,7 @@ public:
         // initialization
         if (cloudKeyPoses3D->points.empty())
         {
+            // imageProjection에서 deskew를 위해 사용한 imu값을 불러옴
             transformTobeMapped[0] = cloudInfo.imuRollInit;
             transformTobeMapped[1] = cloudInfo.imuPitchInit;
             transformTobeMapped[2] = cloudInfo.imuYawInit;
@@ -882,10 +888,17 @@ public:
 
         std::vector<int> pointSearchInd;
         std::vector<float> pointSearchSqDis;
-
-        // 이미 로드된 cornerMap과 surfMap에서 주변 포인트를 탐색
-        kdtreeSurroundingKeyPoses->setInputCloud(cornerMap);
-        kdtreeSurroundingKeyPoses->radiusSearch(cloudKeyPoses3D->back(), (double)surroundingKeyframeSearchRadius, pointSearchInd, pointSearchSqDis);
+        /*
+        cloudKeyPoses3D : 지나온 모든 시점들에서 keyframe으로 인식된 cloud들을 담고있는 변수
+        이미 로드된 cornerMap과 surfMap에서 현재 위치 주변의 points들을 surroundingKeyposesDS에 저장
+        */
+        if(kdtree_for_cornerMap)
+        {
+            // kdtree는 최초 1회만 생성
+            kdtreeSurroundingKeyPosesCorner->setInputCloud(cornerMap);
+            kdtree_for_cornerMap = false;
+        }
+        kdtreeSurroundingKeyPosesCorner->radiusSearch(cloudKeyPoses3D->back(), (double)surroundingKeyframeSearchRadius, pointSearchInd, pointSearchSqDis);
         
         for (int i = 0; i < (int)pointSearchInd.size(); ++i)
         {
@@ -894,8 +907,12 @@ public:
         }
 
         // surfMap에서는 원래 진행하지는 않지만, computation 여유있으면 해도 될 듯
-        kdtreeSurroundingKeyPoses->setInputCloud(surfMap);
-        kdtreeSurroundingKeyPoses->radiusSearch(cloudKeyPoses3D->back(), (double)surroundingKeyframeSearchRadius, pointSearchInd, pointSearchSqDis);
+        if(kdtree_for_surfMap)
+        {
+            kdtreeSurroundingKeyPosesSurf->setInputCloud(surfMap);
+            kdtree_for_surfMap = false;
+        }
+        kdtreeSurroundingKeyPosesSurf->radiusSearch(cloudKeyPoses3D->back(), (double)surroundingKeyframeSearchRadius, pointSearchInd, pointSearchSqDis);
         
         for (int i = 0; i < (int)pointSearchInd.size(); ++i)
         {
@@ -910,26 +927,44 @@ public:
         // fuse the map
         laserCloudCornerFromMap->clear();
         laserCloudSurfFromMap->clear();
+
+        std::vector<int> pointSearchInd;
+        std::vector<float> pointSearchSqDis;
+
         for (int i = 0; i < (int)cloudToExtract->size(); ++i)
         {
             if (pointDistance(cloudToExtract->points[i], cloudKeyPoses3D->back()) > surroundingKeyframeSearchRadius)
                 continue;
-
+            // surroundingKeyPosesDS안에 있는 point의 intensity값을 통해서 keyframe index 가져옴
             int thisKeyInd = (int)cloudToExtract->points[i].intensity;
+            // container는 map의 cache역할을 함. 먼저 container안에 있는지 확인
             if (laserCloudMapContainer.find(thisKeyInd) != laserCloudMapContainer.end()) 
             {
                 // transformed cloud available
                 *laserCloudCornerFromMap += laserCloudMapContainer[thisKeyInd].first;
                 *laserCloudSurfFromMap   += laserCloudMapContainer[thisKeyInd].second;
-            } else {
-                // transformed cloud not available
-                pcl::PointCloud<PointType> laserCloudCornerTemp = *transformPointCloud(cornerCloudKeyFrames[thisKeyInd],  &cloudKeyPoses6D->points[thisKeyInd]);
-                pcl::PointCloud<PointType> laserCloudSurfTemp = *transformPointCloud(surfCloudKeyFrames[thisKeyInd],    &cloudKeyPoses6D->points[thisKeyInd]);
-                *laserCloudCornerFromMap += laserCloudCornerTemp;
-                *laserCloudSurfFromMap   += laserCloudSurfTemp;
-                laserCloudMapContainer[thisKeyInd] = make_pair(laserCloudCornerTemp, laserCloudSurfTemp);
+            } 
+            else
+            {
+                kdtreeSurroundingKeyPosesCorner->radiusSearch(cloudToExtract->points[i], surroundingKeyframeSearchRadius, pointSearchInd, pointSearchSqDis);
+                pcl::PointCloud<PointType>::Ptr cornerSubmap(new pcl::PointCloud<PointType>());
+                for(size_t j=0; j < pointSearchInd.size(); ++j) 
+                {
+                    cornerSubmap->push_back((*cornerMap)[pointSearchInd[j]]);
+                }
+
+                kdtreeSurroundingKeyPosesSurf->radiusSearch(cloudToExtract->points[i], surroundingKeyframeSearchRadius, pointSearchInd, pointSearchSqDis);
+                pcl::PointCloud<PointType>::Ptr surfSubmap(new pcl::PointCloud<PointType>());
+                for (size_t j = 0; j < pointSearchInd.size(); ++j) 
+                {
+                    surfSubmap->push_back((*surfMap)[pointSearchInd[j]]);
+                }
+
+                *laserCloudCornerFromMap += *cornerSubmap;
+                *laserCloudSurfFromMap   += *surfSubmap;
+
+                laserCloudMapContainer[thisKeyInd] = make_pair(*cornerSubmap, *surfSubmap);
             }
-            
         }
 
         // Downsample the surrounding corner key frames (or map)
