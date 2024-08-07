@@ -1,4 +1,4 @@
-lio_sam:
+lioven:
   # Load할 Mpa의 경로 (절대경로)
   PathCornerMap: "/home/popular/catkin_ws/src/heven_m_m/LIO-SAM/data/CornerMap.pcd" 
   PathSurfMap: "/home/popular/catkin_ws/src/heven_m_m/LIO-SAM/data/SurfMap.pcd"
