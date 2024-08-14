@@ -1,13 +1,22 @@
 lioven:
   # Load할 Mpa의 경로 (절대경로)
-  PathCornerMap: "/home/popular/catkin_ws/src/heven_m_m/LIO-SAM/data/CornerMap.pcd" 
-  PathSurfMap: "/home/popular/catkin_ws/src/heven_m_m/LIO-SAM/data/SurfMap.pcd"
+  PathCornerMap: "/home/popular/catkin_ws/src/lioven/data/cloudCorner.pcd" 
+  PathSurfMap: "/home/popular/catkin_ws/src/lioven/data/cloudSurf.pcd"
+
+  # initial match 관련. gicp 결과에 부호 반대로 넣어줘야 함. 
+  useInitialMatching: true
+  intial_x: -0.197722
+  intial_y: 0.072788
+  intial_z: -0.135344
+  intial_roll: -3.109692
+  intial_pitch: -3.100692
+  intial_yaw: 3.117155
 
   # Topics
   pointCloudTopic: "velodyne_points"               # Point cloud data
   imuTopic: "imu"                         # IMU data
   odomTopic: "odometry/imu"                   # IMU pre-preintegration odometry, same frequency as IMU
-  gpsTopic: "odometry/gps"                   # GPS odometry topic from navsat, see module_navsat.launch file
+  gpsTopic: "odometry/gpsz"                   # GPS odometry topic from navsat, see module_navsat.launch file
 
   # Frames
   lidarFrame: "base_link"
@@ -43,26 +52,15 @@ lioven:
 
   # Extrinsics: T_lb (lidar -> imu)
   extrinsicTrans: [0.0, 0.0, 0.0]
-  # extrinsicRot: [-1, 0, 0,
-  #                 0, 1, 0,
-  #                 0, 0, -1]
-  # extrinsicRPY: [0, -1, 0,
-  #                1, 0, 0,
-  #                0, 0, 1]
-  extrinsicRot: [1, 0, 0,
-                  0, 1, 0,
-                  0, 0, 1]
+
+  extrinsicRot: [0.99914, -0.039961, -0.0110534,
+                  0.0399585, 0.999201, -0.000444666,
+                  0.0110623, 2.60603e-06, 0.999939]
+
   extrinsicRPY: [1, 0, 0,
                   0, 1, 0,
                   0, 0, 1]
-                  
-  # extrinsicTrans: [3.03004, -0.0783526, 0.185477]
-  # extrinsicRot: [0.979833, 0.183849, 0.0782725,
-  #                 0.174705, -0.978346, 0.110981,
-  #                 0.0969815, -0.0950687, -0.990735]
-  # extrinsicRPY: [0.979833, 0.183849, 0.0782725,
-  #                 0.174705, -0.978346, 0.110981,
-  #                 0.0969815, -0.0950687, -0.990735]
+
 
 
 
@@ -110,7 +108,7 @@ lioven:
 
 # Navsat (convert GPS coordinates to Cartesian)
 navsat:
-  frequency: 50
+  frequency: 10
   wait_for_datum: false
   delay: 0.0
   magnetic_declination_radians: 0

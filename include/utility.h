@@ -72,6 +72,15 @@ public:
     string PathTocornerMap;
     string PathTosurfMap;
 
+    // Initialization params
+    bool useInitialMatching;
+    float roll_initial_;
+    float pitch_initial_;
+    float yaw_initial_;
+    float x_initial_;
+    float y_initial_;
+    float z_initial_;
+
     //Topics
     string pointCloudTopic;
     string imuTopic;
@@ -162,6 +171,15 @@ public:
         // load할 feature_map의 경로를 받아오는 param
         nh.param<std::string>("lioven/PathCornerMap", PathTocornerMap, "CornerMap.pcd");
         nh.param<std::string>("lioven/PathSurfMap", PathTosurfMap, "SurfMap.pcd");
+
+        // initial match 관련 param 
+        nh.param<bool>("lioven/useInitialMatching", useInitialMatching, false);
+        nh.param<float>("lioven/intial_x", x_initial_, 0.0);
+        nh.param<float>("lioven/intial_y", y_initial_, 0.0);
+        nh.param<float>("lioven/intial_z", z_initial_, 0.0);
+        nh.param<float>("lioven/intial_roll", roll_initial_, 0.0);
+        nh.param<float>("lioven/intial_pitch", pitch_initial_, 0.0);
+        nh.param<float>("lioven/intial_yaw", yaw_initial_, 0.0);
 
         nh.param<std::string>("lioven/pointCloudTopic", pointCloudTopic, "points_raw");
         nh.param<std::string>("lioven/imuTopic", imuTopic, "imu_correct");

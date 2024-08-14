@@ -252,9 +252,22 @@ public:
         kdtreeCornerFromMap->setInputCloud(cornerMap);
         kdtreeSurfFromMap->setInputCloud(surfMap);
 
-
-        for (int i = 0; i < 6; ++i){
-            transformTobeMapped[i] = 0;
+        if(useInitialMatching)
+        {
+            // roll, pitch, yaw, x, y, z
+            transformTobeMapped[0] = roll_initial_;
+            transformTobeMapped[1] = pitch_initial_;
+            transformTobeMapped[2] = yaw_initial_;
+            transformTobeMapped[3] = x_initial_;
+            transformTobeMapped[4] = y_initial_;
+            transformTobeMapped[5] = z_initial_;
+        }
+        else
+        {
+            for (int i = 0; i < 6; ++i)
+            {
+                transformTobeMapped[i] = 0;
+            }
         }
 
         matP = cv::Mat(6, 6, CV_32F, cv::Scalar::all(0));
