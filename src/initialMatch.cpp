@@ -14,12 +14,6 @@
 #include <tf/transform_listener.h>
 #include <cmath>
 
-/*
-    1. 먼저 yaw값을 바탕으로 curr_scan을 map frame으로 rotation을 대충 맞춰준다. (-yaw 값만큼 회전) 
-    2. 각각의 position에 대해서 변환행렬을 구하고, score를 바탕으로 가장 괜찮은거 선정. (0.1이하로 나와야 쓸만함)
-*/
-
-
 class LidarMappingNode : public ParamServer
 {
 public:
@@ -53,9 +47,7 @@ public:
     {
         // 첫 번째 포인트 클라우드 처리 후 노드 종료
         if (processed_) return;
-        if (current_yaw_==0.0) return;
         ROS_INFO("First Scan Sub !");
-        // PCL 포맷으로 변환
         pcl::PointCloud<pcl::PointXYZI>::Ptr current_cloud(new pcl::PointCloud<pcl::PointXYZI>());
         pcl::fromROSMsg(*cloud_msg, *current_cloud);
 
@@ -65,27 +57,29 @@ public:
         pcl::transformPointCloud(*current_cloud, *current_cloud, transform);
 
         std::vector<Eigen::Vector3f> directions = {
-            { match_x,  match_y, 0.0f},  // East
-            { match_x + 0.3,  match_y, 0.0f},  // West
-            { match_x,  match_y + 0.1, 0.0f},  // North
-            { match_x + 0.3, match_y + 0.1, 0.0f},  // South
-            { match_x + 0.5,  match_y, 0.0f},  // West
-            { match_x,  match_y + 0.1, 0.0f},  // North
-            { match_x + 0.5, match_y + 0.1, 0.0f},  // South
+            { match_x,  match_y, 0.0f},  
+            { match_x + 0.3,  match_y, 0.0f},  
+            { match_x,  match_y + 0.1, 0.0f},  
+            { match_x + 0.3, match_y + 0.1, 0.0f},  
+            { match_x + 0.5,  match_y, 0.0f},  
+            { match_x,  match_y + 0.1, 0.0f},  
+            { match_x + 0.5, match_y + 0.1, 0.0f},  
         };
 
         float best_score = std::numeric_limits<float>::max();
         Eigen::Matrix4f best_transformation = Eigen::Matrix4f::Identity();
 
         for (const auto& direction : directions) {
-            // Translate the point cloud
+            // 지정한 direction들에 대해서 시작위치 initial
             Eigen::Affine3f translated_transform = Eigen::Affine3f::Identity();
             translated_transform.translate(direction);
+
             pcl::PointCloud<pcl::PointXYZI>::Ptr translated_cloud(new pcl::PointCloud<pcl::PointXYZI>());
             pcl::transformPointCloud(*current_cloud, *translated_cloud, translated_transform);
 
             pcl::PointCloud<pcl::PointXYZI>::Ptr aligned_cloud(new pcl::PointCloud<pcl::PointXYZI>());
             pcl::GeneralizedIterativeClosestPoint<pcl::PointXYZI, pcl::PointXYZI> gicp;
+
             gicp.setInputSource(translated_cloud);
             gicp.setInputTarget(global_map_.makeShared());
             gicp.setMaxCorrespondenceDistance(0.7);
@@ -126,10 +120,13 @@ private:
     ros::NodeHandle nh_;
     ros::Subscriber lidar_sub_;
     ros::Subscriber imu_sub_;
+
     pcl::PointCloud<pcl::PointXYZI> global_map_;
+
     bool processed_ = false; 
-    double current_yaw_ = 0.0;
     bool imu_received_ = false;
+    double current_yaw_ = 0.0;
+    
 };
 
 int main(int argc, char** argv)
