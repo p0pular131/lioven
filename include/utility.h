@@ -81,6 +81,11 @@ public:
     float y_initial_;
     float z_initial_;
 
+    // initialMatch params
+    string PathGlobalMap;
+    float match_x;
+    float match_y;
+
     //Topics
     string pointCloudTopic;
     string imuTopic;
@@ -180,6 +185,10 @@ public:
         nh.param<float>("lioven/intial_roll", roll_initial_, 0.0);
         nh.param<float>("lioven/intial_pitch", pitch_initial_, 0.0);
         nh.param<float>("lioven/intial_yaw", yaw_initial_, 0.0);
+
+        nh.param<std::string>("lioven/PathGlobalMap", PathGlobalMap, "cloudGlobal.pcd");
+        nh.param<float>("lioven/match_x", match_x, 0.0);
+        nh.param<float>("lioven/match_y", match_y, 0.0);
 
         nh.param<std::string>("lioven/pointCloudTopic", pointCloudTopic, "points_raw");
         nh.param<std::string>("lioven/imuTopic", imuTopic, "imu_correct");

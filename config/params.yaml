@@ -3,14 +3,19 @@ lioven:
   PathCornerMap: "/home/popular/catkin_ws/src/lioven/data/cloudCorner.pcd" 
   PathSurfMap: "/home/popular/catkin_ws/src/lioven/data/cloudSurf.pcd"
 
-  # initial match 관련. gicp 결과에 부호 반대로 넣어줘야 함. 
+  # localization initial pose 관련. gicp 결과에 부호 반대로 넣어줘야 함. 
   useInitialMatching: true
-  intial_x: -0.197722
-  intial_y: 0.072788
-  intial_z: -0.135344
-  intial_roll: -3.109692
-  intial_pitch: -3.100692
-  intial_yaw: 3.117155
+  intial_x: 6.3
+  intial_y: 0.0
+  intial_z: 0.0
+  intial_roll: 0.0
+  intial_pitch: 0.0
+  intial_yaw: 0.0
+
+  # initialMatch 파일 관련 param
+  PathGlobalMap: "/home/popular/catkin_ws/src/lioven/data/cloudGlobal.pcd"
+  match_x: 6.8
+  match_y: 1.5
 
   # Topics
   pointCloudTopic: "velodyne_points"               # Point cloud data

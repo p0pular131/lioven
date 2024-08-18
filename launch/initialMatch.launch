@@ -1,0 +1,6 @@
+<launch>
+    <!-- Parameters -->
+    <rosparam file="$(find lioven)/config/params.yaml" command="load" />
+    <!-- initialMatch node -->
+    <node pkg="lioven" type="initialMatch" name="initialMatch_node" output="screen"/>
+</launch>
