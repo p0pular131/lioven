@@ -178,6 +178,7 @@ public:
 
     std::deque<sensor_msgs::Imu> imuQueOpt;
     std::deque<sensor_msgs::Imu> imuQueImu;
+    std::deque<sensor_msgs::Odometry> wheelOdomQue;
 
     gtsam::Pose3 prevPose_;
     gtsam::Vector3 prevVel_;
@@ -198,17 +199,15 @@ public:
     const double delta_t = 0;
 
     int key = 1;
-    
-    // T_bl: tramsform points from lidar frame to imu frame 
+
     gtsam::Pose3 imu2Lidar = gtsam::Pose3(gtsam::Rot3(1, 0, 0, 0), gtsam::Point3(-extTrans.x(), -extTrans.y(), -extTrans.z()));
-    // T_lb: tramsform points from imu frame to lidar frame
     gtsam::Pose3 lidar2Imu = gtsam::Pose3(gtsam::Rot3(1, 0, 0, 0), gtsam::Point3(extTrans.x(), extTrans.y(), extTrans.z()));
 
     IMUPreintegration()
     {
         subImu      = nh.subscribe<sensor_msgs::Imu>  (imuTopic,                   2000, &IMUPreintegration::imuHandler,      this, ros::TransportHints().tcpNoDelay());
         subOdometry = nh.subscribe<nav_msgs::Odometry>("lio_sam/mapping/odometry_incremental", 5,    &IMUPreintegration::odometryHandler, this, ros::TransportHints().tcpNoDelay());
-
+        subwheelOdom = nh.subscribe<nav_msgs::Odometry>("odom_wheel", 10, &IMUPreintegration::wheelOdomHandler, this, ros::TransportHints().tcpNoDelay());
         pubImuOdometry = nh.advertise<nav_msgs::Odometry> (odomTopic+"_incremental", 2000);
 
         boost::shared_ptr<gtsam::PreintegrationParams> p = gtsam::PreintegrationParams::MakeSharedU(imuGravity);
@@ -249,6 +248,12 @@ public:
         systemInitialized = false;
     }
 
+    void wheelOdomHandler(const nav_msgs::Odometry::ConstPtr& odomMsg)
+    {
+        wheelOdomQue.push_back(*odomMsg);
+    }
+
+
     void odometryHandler(const nav_msgs::Odometry::ConstPtr& odomMsg)
     {
         std::lock_guard<std::mutex> lock(mtx);
@@ -258,7 +263,7 @@ public:
         // make sure we have imu data to integrate
         if (imuQueOpt.empty())
             return;
-
+        double laser_time = odomMsg->header.stamp.toSec();
         float p_x = odomMsg->pose.pose.position.x;
         float p_y = odomMsg->pose.pose.position.y;
         float p_z = odomMsg->pose.pose.position.z;
@@ -355,7 +360,7 @@ public:
             double imuTime = ROS_TIME(thisImu);
             if (imuTime < currentCorrectionTime - delta_t)
             {
-                double dt = (lastImuT_opt < 0) ? (1.0 / 100.0) : (imuTime - lastImuT_opt);
+                double dt = (lastImuT_opt < 0) ? (1.0 / 200.0) : (imuTime - lastImuT_opt);
                 imuIntegratorOpt_->integrateMeasurement(
                         gtsam::Vector3(thisImu->linear_acceleration.x, thisImu->linear_acceleration.y, thisImu->linear_acceleration.z),
                         gtsam::Vector3(thisImu->angular_velocity.x,    thisImu->angular_velocity.y,    thisImu->angular_velocity.z), dt);
@@ -377,6 +382,43 @@ public:
         gtsam::Pose3 curPose = lidarPose.compose(lidar2Imu);
         gtsam::PriorFactor<gtsam::Pose3> pose_factor(X(key), curPose, degenerate ? correctionNoise2 : correctionNoise);
         graphFactors.add(pose_factor);
+
+        // add wheel factor
+        // 20hz -> wheel odom, 10hz -> lidar odom
+        double w_x = 0; 
+        double w_y = 0;
+        double w_yaw = 0;
+        if(wheelOdomQue.empty()) return;
+        while(!wheelOdomque.empty())
+        {
+            if(wheelOdomque.back().header.stamp.toSec() < laser_time - 0.1)
+            {
+                wheelOdomque.pop_back();
+            }
+            else if (wheelOdomque.back().header.stamp.toSec() > laser_time + 0.1)
+            {
+                wheelOdomque.pop_back();
+            }
+            else
+            {
+                nav_msgs::Odometry thisWHEEL = wheelOdomQue.back();
+                wheelOdomQue.pop_back();
+                w_x += thisWHEEL.pose.pose.position.x;
+                w_y += thisWHEEL.pose.pose.position.y;
+                w_yaw += tf::getYaw(thisWHEEL.pose.pose.orientation);
+                if(ifwheelOdomque.empty())
+                {
+                    gtsam::Pose3 deltaPose(gtsam::Rot3::Yaw(w_yaw), gtsam::Point3(w_x, w_y, 0.0)); 
+                    gtsam::BetweenFactor<gtsam::Pose3> wheelOdomFactor(
+                        X(key - 1), X(key), deltaPose, 
+                        gtsam::noiseModel::Diagonal::Sigmas(gtsam::Vector6::Constant(0.1)) 
+                    );
+                    graphFactors.add(wheelOdomFactor);
+                }
+            }
+            
+        }
+
         // insert predicted values
         gtsam::NavState propState_ = imuIntegratorOpt_->predict(prevState_, prevBias_);
         graphValues.insert(X(key), propState_.pose());
@@ -423,7 +465,7 @@ public:
             {
                 sensor_msgs::Imu *thisImu = &imuQueImu[i];
                 double imuTime = ROS_TIME(thisImu);
-                double dt = (lastImuQT < 0) ? (1.0 / 100.0) :(imuTime - lastImuQT);
+                double dt = (lastImuQT < 0) ? (1.0 / 200.0) :(imuTime - lastImuQT);
 
                 imuIntegratorImu_->integrateMeasurement(gtsam::Vector3(thisImu->linear_acceleration.x, thisImu->linear_acceleration.y, thisImu->linear_acceleration.z),
                                                         gtsam::Vector3(thisImu->angular_velocity.x,    thisImu->angular_velocity.y,    thisImu->angular_velocity.z), dt);
@@ -468,7 +510,7 @@ public:
             return;
 
         double imuTime = ROS_TIME(&thisImu);
-        double dt = (lastImuT_imu < 0) ? (1.0 / 100.0) : (imuTime - lastImuT_imu);
+        double dt = (lastImuT_imu < 0) ? (1.0 / 200.0) : (imuTime - lastImuT_imu);
         lastImuT_imu = imuTime;
 
         // integrate this single imu message
