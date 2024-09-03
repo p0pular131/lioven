@@ -161,6 +161,7 @@ public:
 
     ros::Subscriber subImu;
     ros::Subscriber subOdometry;
+    ros::Subscriber subwheelOdom;
     ros::Publisher pubImuOdometry;
 
     bool systemInitialized = false;
@@ -178,7 +179,7 @@ public:
 
     std::deque<sensor_msgs::Imu> imuQueOpt;
     std::deque<sensor_msgs::Imu> imuQueImu;
-    std::deque<sensor_msgs::Odometry> wheelOdomQue;
+    std::deque<nav_msgs::Odometry> wheelOdomQue;
 
     gtsam::Pose3 prevPose_;
     gtsam::Vector3 prevVel_;
@@ -388,35 +389,22 @@ public:
         double w_x = 0; 
         double w_y = 0;
         double w_yaw = 0;
-        if(wheelOdomQue.empty()) return;
-        while(!wheelOdomque.empty())
+        while(!wheelOdomQue.empty())
         {
-            if(wheelOdomque.back().header.stamp.toSec() < laser_time - 0.1)
+            nav_msgs::Odometry thisWHEEL = wheelOdomQue.back();
+            wheelOdomQue.pop_back();
+            w_x += thisWHEEL.pose.pose.position.x;
+            w_y += thisWHEEL.pose.pose.position.y;
+            w_yaw += tf::getYaw(thisWHEEL.pose.pose.orientation);
+            if(wheelOdomQue.empty())
             {
-                wheelOdomque.pop_back();
+                gtsam::Pose3 deltaPose(gtsam::Rot3::Yaw(w_yaw), gtsam::Point3(w_x, w_y, 0.0)); 
+                gtsam::BetweenFactor<gtsam::Pose3> wheelOdomFactor(
+                    X(key - 1), X(key), deltaPose, 
+                    gtsam::noiseModel::Diagonal::Sigmas(gtsam::Vector6::Constant(0.1)) 
+                );
+                graphFactors.add(wheelOdomFactor);
             }
-            else if (wheelOdomque.back().header.stamp.toSec() > laser_time + 0.1)
-            {
-                wheelOdomque.pop_back();
-            }
-            else
-            {
-                nav_msgs::Odometry thisWHEEL = wheelOdomQue.back();
-                wheelOdomQue.pop_back();
-                w_x += thisWHEEL.pose.pose.position.x;
-                w_y += thisWHEEL.pose.pose.position.y;
-                w_yaw += tf::getYaw(thisWHEEL.pose.pose.orientation);
-                if(ifwheelOdomque.empty())
-                {
-                    gtsam::Pose3 deltaPose(gtsam::Rot3::Yaw(w_yaw), gtsam::Point3(w_x, w_y, 0.0)); 
-                    gtsam::BetweenFactor<gtsam::Pose3> wheelOdomFactor(
-                        X(key - 1), X(key), deltaPose, 
-                        gtsam::noiseModel::Diagonal::Sigmas(gtsam::Vector6::Constant(0.1)) 
-                    );
-                    graphFactors.add(wheelOdomFactor);
-                }
-            }
-            
         }
 
         // insert predicted values
