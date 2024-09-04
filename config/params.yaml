@@ -5,23 +5,37 @@ lioven:
 
   # score "0.15"이하(엔간하면) initial + gicp pose 더해서 넣어주면 됨. 
   useInitialMatching: true
-  intial_x: 7.3
-  intial_y: 1.6
+  intial_x: 8.5
+  intial_y: 45.051804
   intial_z: 0.0
   intial_roll: 0.0
   intial_pitch: 0.0
   intial_yaw: 0.0
 
-  # initialMatch 파일 관련 param
+  # initialMatch 파일 관련 param x와 y에 map의 원점 gps값 넣어주면 됨. 
   PathGlobalMap: "/home/popular/catkin_ws/src/lioven/data/cloudGlobal.pcd"
-  match_x: 6.8
-  match_y: 1.5
+  
+  # yesun origin
+  # match_x: 37.2388142
+  # match_y: 126.77290479999999
+  # match_z: 32.975
+  
+  # # bonsun origin
+  # match_x: 37.2390913 
+  # match_y: 126.77307719999999
+  # match_z: 32.253
+
+  # # skku origin
+  match_x: 126.9756321
+  match_y: 37.293234399999996
+  match_z: 0.0
+  # 표지판 37.2936243(latitude), 126.97567939999999(longitude) -> gt:(4,43) 67초 
 
   # Topics
   pointCloudTopic: "velodyne_points"               # Point cloud data
   imuTopic: "imu"                         # IMU data
   odomTopic: "odometry/imu"                   # IMU pre-preintegration odometry, same frequency as IMU
-  gpsTopic: "odometry/gpsz"                   # GPS odometry topic from navsat, see module_navsat.launch file
+  gpsTopic: "odometry/gps"                   # GPS odometry topic from navsat, see module_navsat.launch file
 
   # Frames
   lidarFrame: "base_link"
@@ -34,10 +48,10 @@ lioven:
   useGpsElevation: false                      # if GPS elevation is bad, set to "false"
   gpsCovThreshold: 2.0                        # m^2, threshold for using GPS data
   poseCovThreshold: 25.0                      # m^2, threshold for using GPS data
-  
+
   # Export settings
   savePCD: false                              # https://github.com/TixiaoShan/LIO-SAM/issues/3
-  savePCDDirectory: "/Downloads/LOAM/"        # in your home folder, starts and ends with "/". Warning: the code deletes "LOAM" folder then recreates it. See "mapOptimization" for implementation
+  savePCDDirctory: "/Downloads/LOAM/"        # in your home folder, starts and ends with "/". Warning: the code deletes "LOAM" folder then recreates it. See "mapOptimization" for implementation
 
   # Sensor Settings
   sensor: velodyne                            # lidar sensor type, 'velodyne' or 'ouster' or 'livox'
@@ -48,12 +62,20 @@ lioven:
   lidarMaxRange: 1000.0                       # default: 1000.0, maximum lidar range to be used
 
   # IMU Settings
-  imuAccNoise: 3.9939570888238808e-03
-  imuGyrNoise: 1.5636343949698187e-03
-  imuAccBiasN: 6.4356659353532566e-05
-  imuGyrBiasN: 3.5640318696367613e-05
+  # imuAccNoise: 0.009939570888238808e-03
+  # imuGyrNoise: 0.005636343949698187e-03
+  # imuAccBiasN: 0.64356659353532566e-03
+  # imuGyrBiasN: 0.35640318696367613e-03
+  # imuGravity: 9.80511
+  # imuRPYWeight: 0.01
+
+  imuAccNoise: 0.001
+  imuGyrNoise: 0.07
+  imuAccBiasN: 0.04
+  imuGyrBiasN: 1.0
   imuGravity: 9.80511
   imuRPYWeight: 0.01
+
 
   # Extrinsics: T_lb (lidar -> imu)
   extrinsicTrans: [0.0, 0.0, 0.0]
@@ -131,7 +153,7 @@ ekf_gps:
   base_link_frame: base_link
   world_frame: odom
 
-  frequency: 50
+  frequency: 10
   two_d_mode: false
   sensor_timeout: 0.01
   # -------------------------------------

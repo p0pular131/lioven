@@ -85,6 +85,7 @@ public:
     string PathGlobalMap;
     float match_x;
     float match_y;
+    float match_z;
 
     //Topics
     string pointCloudTopic;
@@ -189,6 +190,7 @@ public:
         nh.param<std::string>("lioven/PathGlobalMap", PathGlobalMap, "cloudGlobal.pcd");
         nh.param<float>("lioven/match_x", match_x, 0.0);
         nh.param<float>("lioven/match_y", match_y, 0.0);
+        nh.param<float>("lioven/match_z", match_z, 0.0);
 
         nh.param<std::string>("lioven/pointCloudTopic", pointCloudTopic, "points_raw");
         nh.param<std::string>("lioven/imuTopic", imuTopic, "imu_correct");

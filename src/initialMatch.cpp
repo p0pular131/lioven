@@ -3,6 +3,7 @@
 #include <ros/ros.h>
 #include <sensor_msgs/PointCloud2.h>
 #include <sensor_msgs/Imu.h>
+#include <sensor_msgs/NavSatFix.h>
 #include <pcl/point_cloud.h>
 #include <pcl/point_types.h>
 #include <pcl_conversions/pcl_conversions.h>
@@ -21,6 +22,7 @@ public:
     {
         imu_sub_ = nh_.subscribe<sensor_msgs::Imu>("/imu", 10, &LidarMappingNode::imuCallback, this);
         lidar_sub_ = nh_.subscribe<sensor_msgs::PointCloud2>("/velodyne_points", 10, &LidarMappingNode::lidarCallback, this);
+        gps_sub_ = nh_.subscribe<sensor_msgs::NavSatFix>("ublox_gps/fix", 10, &LidarMappingNode::gpsCallback, this);
         ROS_INFO("\033[1;33m----> Loading for Map . . .\033[0m");
         if (pcl::io::loadPCDFile<pcl::PointXYZI>(PathGlobalMap, global_map_) == -1)
         {
@@ -31,43 +33,69 @@ public:
         ROS_INFO("\033[1;34mGlobal map loaded with %zu points ! ! \033[0m", global_map_.points.size());
     }
 
+    void gpsCallback(const sensor_msgs::NavSatFix::ConstPtr& gps_msg) 
+    {
+        if(gps_received_) return;
+        _latitude = gps_msg->latitude;
+        _longitude = gps_msg->longitude;
+        _altitude = gps_msg->altitude;
+        gps_received_ = true;
+    }
 
-    void imuCallback(const sensor_msgs::Imu::ConstPtr& imu_msg) {
+    void imuCallback(const sensor_msgs::Imu::ConstPtr& imu_msg) 
+    {
         if(imu_received_) return;
         tf::Quaternion quat;
         tf::quaternionMsgToTF(imu_msg->orientation, quat);
         double roll, pitch, yaw;
         tf::Matrix3x3(quat).getRPY(roll, pitch, yaw);
+        current_roll_ = roll;
+        current_pitch_ = pitch;
         current_yaw_ = yaw;
         imu_received_ = true;
+        ROS_INFO("IMU sub : %f",yaw);
     }
 
 
     void lidarCallback(const sensor_msgs::PointCloud2::ConstPtr& cloud_msg)
     {
         // 첫 번째 포인트 클라우드 처리 후 노드 종료
-        if (processed_) return;
-        ROS_INFO("First Scan Sub !");
+        if (processed_ || !gps_received_) return;
+        ROS_INFO("First Scan Sub !"); 
         pcl::PointCloud<pcl::PointXYZI>::Ptr current_cloud(new pcl::PointCloud<pcl::PointXYZI>());
         pcl::fromROSMsg(*cloud_msg, *current_cloud);
 
         // current_cloud를 yaw값을 받아와서 -만큼 rotation 준 다음 gicp 진행
         Eigen::Affine3f transform = Eigen::Affine3f::Identity();
-        transform.rotate(Eigen::AngleAxisf(-current_yaw_, Eigen::Vector3f::UnitZ()));
+        transform.rotate(Eigen::AngleAxisf(-current_roll_, Eigen::Vector3f::UnitX())); // Roll rotation
+        transform.rotate(Eigen::AngleAxisf(-current_pitch_, Eigen::Vector3f::UnitY())); // Pitch rotation
+        transform.rotate(Eigen::AngleAxisf(-current_yaw_, Eigen::Vector3f::UnitZ())); // Yaw rotation
         pcl::transformPointCloud(*current_cloud, *current_cloud, transform);
 
+        // gps값을 비교해서 최초 initial x, y값 생성
+        match_x = (_longitude - match_x) * 111320 * cos(_latitude * M_PI / 180.0);  // longitude 변환 (cos 적용)
+        match_y = (_latitude - match_y) * 111320;  // latitude 변환
+        match_z = 0.0; // 고도는 0으로 설정
+        ROS_INFO("Initial Using GPS x, y : %f, %f", match_x, match_y);
+
+
+        // std::vector<Eigen::Vector3f> directions = {
+        //     {static_cast<float>(match_x), static_cast<float>(match_y), static_cast<float>(match_z)},
+        //     {static_cast<float>(match_x + 0.3), static_cast<float>(match_y), static_cast<float>(match_z)},
+        //     {static_cast<float>(match_x), static_cast<float>(match_y + 0.1), static_cast<float>(match_z)},
+        //     {static_cast<float>(match_x + 0.3), static_cast<float>(match_y + 0.1), static_cast<float>(match_z)},
+        //     {static_cast<float>(match_x - 0.3), static_cast<float>(match_y), static_cast<float>(match_z)},
+        //     {static_cast<float>(match_x), static_cast<float>(match_y + 0.1), static_cast<float>(match_z)},
+        //     {static_cast<float>(match_x - 0.3), static_cast<float>(match_y + 0.1), static_cast<float>(match_z)},
+        // };
+        
         std::vector<Eigen::Vector3f> directions = {
-            { match_x,  match_y, 0.0f},  
-            { match_x + 0.3,  match_y, 0.0f},  
-            { match_x,  match_y + 0.1, 0.0f},  
-            { match_x + 0.3, match_y + 0.1, 0.0f},  
-            { match_x + 0.5,  match_y, 0.0f},  
-            { match_x,  match_y + 0.1, 0.0f},  
-            { match_x + 0.5, match_y + 0.1, 0.0f},  
+            { match_x,  match_y, match_z}
         };
 
         float best_score = std::numeric_limits<float>::max();
         Eigen::Matrix4f best_transformation = Eigen::Matrix4f::Identity();
+        Eigen::Vector3f best_direction;
 
         for (const auto& direction : directions) {
             // 지정한 direction들에 대해서 시작위치 initial
@@ -82,7 +110,7 @@ public:
 
             gicp.setInputSource(translated_cloud);
             gicp.setInputTarget(global_map_.makeShared());
-            gicp.setMaxCorrespondenceDistance(0.7);
+            gicp.setMaxCorrespondenceDistance(2.0);
             gicp.setTransformationEpsilon(0.001);
             gicp.setMaximumIterations(1000);
 
@@ -94,6 +122,7 @@ public:
                          direction[0], direction[1], direction[2], score);
 
                 if (score < best_score) {
+                    best_direction = direction;
                     best_score = score;
                     best_transformation = gicp.getFinalTransformation();
                 }
@@ -113,6 +142,10 @@ public:
         ROS_INFO("Best Transformation: [Roll, Pitch, Yaw, X, Y, Z]: [%f, %f, %f, %f, %f, %f]",
                  euler_angles[0], euler_angles[1], euler_angles[2],
                  translation_vector[0], translation_vector[1], translation_vector[2]);
+        ROS_INFO("And you can use this for x, y, z : %f, %f, %f",
+                best_direction[0] + translation_vector[0], 
+                best_direction[1] + translation_vector[1],
+                best_direction[2] + translation_vector[2]);
         ros::shutdown();
     }
 
@@ -120,13 +153,18 @@ private:
     ros::NodeHandle nh_;
     ros::Subscriber lidar_sub_;
     ros::Subscriber imu_sub_;
+    ros::Subscriber gps_sub_;
 
     pcl::PointCloud<pcl::PointXYZI> global_map_;
 
     bool processed_ = false; 
     bool imu_received_ = false;
+    bool gps_received_ = false;
+    double current_roll_ = 0.0;
     double current_yaw_ = 0.0;
-    
+    double current_pitch_ = 0.0; 
+    float _latitude, _longitude, _altitude;
+
 };
 
 int main(int argc, char** argv)
