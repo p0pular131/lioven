@@ -5,37 +5,37 @@ lioven:
 
   # score "0.15"이하(엔간하면) initial + gicp pose 더해서 넣어주면 됨. 
   useInitialMatching: true
-  intial_x: 8.5
-  intial_y: 45.051804
-  intial_z: 0.0
-  intial_roll: 0.0
-  intial_pitch: 0.0
-  intial_yaw: 0.0
+  intial_x: 22.089228
+  intial_y: 42.861618
+  intial_z: -0.314451
+  intial_roll: -0.000288
+  intial_pitch: 0.015819
+  intial_yaw: -1.2
 
   # initialMatch 파일 관련 param x와 y에 map의 원점 gps값 넣어주면 됨. 
   PathGlobalMap: "/home/popular/catkin_ws/src/lioven/data/cloudGlobal.pcd"
   
   # yesun origin
-  # match_x: 37.2388142
-  # match_y: 126.77290479999999
-  # match_z: 32.975
+  match_x: 126.77290479999999
+  match_y: 37.2388142
+  match_z: 32.975
   
   # # bonsun origin
-  # match_x: 37.2390913 
-  # match_y: 126.77307719999999
+  # match_x: 126.77307719999999
+  # match_y: 37.2390913 
   # match_z: 32.253
 
   # # skku origin
-  match_x: 126.9756321
-  match_y: 37.293234399999996
-  match_z: 0.0
+  # match_x: 126.9756321
+  # match_y: 37.293234399999996
+  # match_z: 0.0
   # 표지판 37.2936243(latitude), 126.97567939999999(longitude) -> gt:(4,43) 67초 
 
   # Topics
   pointCloudTopic: "velodyne_points"               # Point cloud data
   imuTopic: "imu"                         # IMU data
   odomTopic: "odometry/imu"                   # IMU pre-preintegration odometry, same frequency as IMU
-  gpsTopic: "odometry/gps"                   # GPS odometry topic from navsat, see module_navsat.launch file
+  gpsTopic: "odometry/gpsz"                   # GPS odometry topic from navsat, see module_navsat.launch file
 
   # Frames
   lidarFrame: "base_link"

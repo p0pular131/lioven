@@ -53,7 +53,7 @@ public:
         current_pitch_ = pitch;
         current_yaw_ = yaw;
         imu_received_ = true;
-        ROS_INFO("IMU sub : %f",yaw);
+        ROS_INFO("IMU sub R P Y : %f %f %f",current_roll_, current_pitch_, current_yaw_);
     }
 
 
@@ -65,7 +65,6 @@ public:
         pcl::PointCloud<pcl::PointXYZI>::Ptr current_cloud(new pcl::PointCloud<pcl::PointXYZI>());
         pcl::fromROSMsg(*cloud_msg, *current_cloud);
 
-        // current_cloud를 yaw값을 받아와서 -만큼 rotation 준 다음 gicp 진행
         Eigen::Affine3f transform = Eigen::Affine3f::Identity();
         transform.rotate(Eigen::AngleAxisf(-current_roll_, Eigen::Vector3f::UnitX())); // Roll rotation
         transform.rotate(Eigen::AngleAxisf(-current_pitch_, Eigen::Vector3f::UnitY())); // Pitch rotation
@@ -77,40 +76,46 @@ public:
         match_y = (_latitude - match_y) * 111320;  // latitude 변환
         match_z = 0.0; // 고도는 0으로 설정
         ROS_INFO("Initial Using GPS x, y : %f, %f", match_x, match_y);
-
-
-        // std::vector<Eigen::Vector3f> directions = {
-        //     {static_cast<float>(match_x), static_cast<float>(match_y), static_cast<float>(match_z)},
-        //     {static_cast<float>(match_x + 0.3), static_cast<float>(match_y), static_cast<float>(match_z)},
-        //     {static_cast<float>(match_x), static_cast<float>(match_y + 0.1), static_cast<float>(match_z)},
-        //     {static_cast<float>(match_x + 0.3), static_cast<float>(match_y + 0.1), static_cast<float>(match_z)},
-        //     {static_cast<float>(match_x - 0.3), static_cast<float>(match_y), static_cast<float>(match_z)},
-        //     {static_cast<float>(match_x), static_cast<float>(match_y + 0.1), static_cast<float>(match_z)},
-        //     {static_cast<float>(match_x - 0.3), static_cast<float>(match_y + 0.1), static_cast<float>(match_z)},
-        // };
         
-        std::vector<Eigen::Vector3f> directions = {
-            { match_x,  match_y, match_z}
-        };
+        Eigen::Affine3f translated_transform = Eigen::Affine3f::Identity();
+        translated_transform.translate(Eigen::Vector3f {match_x, match_y, match_z});       
+        pcl::PointCloud<pcl::PointXYZI>::Ptr translated_cloud(new pcl::PointCloud<pcl::PointXYZI>());
+        pcl::transformPointCloud(*current_cloud, *translated_cloud, translated_transform);
 
+        std::vector<Eigen::Vector3f> directions = {
+            {0.0f, 0.0f, 0.0f},
+            {0.0f, 0.0f, 0.2},
+            {0.0f, 0.0f, 0.4},
+            {0.0f, 0.0f, 0.6},
+            {0.0f, 0.0f, 0.8},
+            {0.0f, 0.0f, 1.0},
+            {0.0f, 0.0f, -0.2},
+            {0.0f, 0.0f, -0.4},
+            {0.0f, 0.0f, -0.6},
+            {0.0f, 0.0f, -0.8},
+            {0.0f, 0.0f, -1.0},
+        };
+        
         float best_score = std::numeric_limits<float>::max();
         Eigen::Matrix4f best_transformation = Eigen::Matrix4f::Identity();
         Eigen::Vector3f best_direction;
 
         for (const auto& direction : directions) {
             // 지정한 direction들에 대해서 시작위치 initial
-            Eigen::Affine3f translated_transform = Eigen::Affine3f::Identity();
-            translated_transform.translate(direction);
+            Eigen::Affine3f rotation = Eigen::Affine3f::Identity();
+            rotation.rotate(Eigen::AngleAxisf(direction[0], Eigen::Vector3f::UnitX())); // Roll rotation
+            rotation.rotate(Eigen::AngleAxisf(direction[1], Eigen::Vector3f::UnitY())); // Pitch rotation
+            rotation.rotate(Eigen::AngleAxisf(direction[2], Eigen::Vector3f::UnitZ())); // Yaw rotation
 
-            pcl::PointCloud<pcl::PointXYZI>::Ptr translated_cloud(new pcl::PointCloud<pcl::PointXYZI>());
-            pcl::transformPointCloud(*current_cloud, *translated_cloud, translated_transform);
+            pcl::PointCloud<pcl::PointXYZI>::Ptr rotated_cloud(new pcl::PointCloud<pcl::PointXYZI>());
+            pcl::transformPointCloud(*current_cloud, *rotated_cloud, rotation);
 
             pcl::PointCloud<pcl::PointXYZI>::Ptr aligned_cloud(new pcl::PointCloud<pcl::PointXYZI>());
             pcl::GeneralizedIterativeClosestPoint<pcl::PointXYZI, pcl::PointXYZI> gicp;
 
-            gicp.setInputSource(translated_cloud);
+            gicp.setInputSource(rotated_cloud);
             gicp.setInputTarget(global_map_.makeShared());
-            gicp.setMaxCorrespondenceDistance(2.0);
+            gicp.setMaxCorrespondenceDistance(1.0);
             gicp.setTransformationEpsilon(0.001);
             gicp.setMaximumIterations(1000);
 
@@ -118,7 +123,7 @@ public:
 
             if (gicp.hasConverged()) {
                 float score = gicp.getFitnessScore();
-                ROS_INFO("GICP Score at direction [x=%f, y=%f, z=%f]: %f",
+                ROS_INFO("GICP Score at direction [R=%f, P=%f, Y=%f]: %f",
                          direction[0], direction[1], direction[2], score);
 
                 if (score < best_score) {
@@ -127,13 +132,12 @@ public:
                     best_transformation = gicp.getFinalTransformation();
                 }
             } else {
-                ROS_WARN("GICP did not converge for direction [x=%f, y=%f, z=%f].",
+                ROS_WARN("GICP did not converge for direction [R=%f, P=%f, Y=%f].",
                          direction[0], direction[1], direction[2]);
             }
         }
 
         ROS_INFO("Best GICP Score: %f", best_score);
-        ROS_INFO_STREAM("Best Transformation Matrix:\n" << best_transformation);
 
         Eigen::Matrix3f rotation_matrix = best_transformation.block<3, 3>(0, 0);
         Eigen::Vector3f translation_vector = best_transformation.block<3, 1>(0, 3);
@@ -142,10 +146,16 @@ public:
         ROS_INFO("Best Transformation: [Roll, Pitch, Yaw, X, Y, Z]: [%f, %f, %f, %f, %f, %f]",
                  euler_angles[0], euler_angles[1], euler_angles[2],
                  translation_vector[0], translation_vector[1], translation_vector[2]);
-        ROS_INFO("And you can use this for x, y, z : %f, %f, %f",
-                best_direction[0] + translation_vector[0], 
-                best_direction[1] + translation_vector[1],
-                best_direction[2] + translation_vector[2]);
+
+        ROS_INFO("And you can use this for x, y, z R P Y: %f %f %f %f %f %f",
+                match_x + translation_vector[0], 
+                match_y + translation_vector[1],
+                          translation_vector[2],
+                -current_roll_ + best_direction[0],
+                -current_pitch_ + best_direction[1],
+                -current_yaw_ + best_direction[2]
+                );
+
         ros::shutdown();
     }
 
@@ -160,9 +170,9 @@ private:
     bool processed_ = false; 
     bool imu_received_ = false;
     bool gps_received_ = false;
-    double current_roll_ = 0.0;
-    double current_yaw_ = 0.0;
-    double current_pitch_ = 0.0; 
+    float current_roll_ = 0.0;
+    float current_yaw_ = 0.0;
+    float current_pitch_ = 0.0; 
     float _latitude, _longitude, _altitude;
 
 };

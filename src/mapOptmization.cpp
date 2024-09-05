@@ -117,6 +117,7 @@ public:
     // load해서 사용할 feature_map 변수 선언
     pcl::PointCloud<PointType>::Ptr cornerMap;
     pcl::PointCloud<PointType>::Ptr surfMap;
+    pcl::PointCloud<PointType>::Ptr globalMap;
 
     pcl::KdTreeFLANN<PointType>::Ptr kdtreeCornerFromMap;
     pcl::KdTreeFLANN<PointType>::Ptr kdtreeSurfFromMap;
@@ -234,8 +235,10 @@ public:
         laserCloudSurfFromMapDS.reset(new pcl::PointCloud<PointType>());
 
         // load한 map을 담을 변수 초기화 & load 진행. 
+        ROS_INFO("\033[1;33m----> Loading for Map . . .\033[0m");
         cornerMap.reset(new pcl::PointCloud<PointType>());
         surfMap.reset(new pcl::PointCloud<PointType>());
+        globalMap.reset(new pcl::PointCloud<PointType>());
         if (pcl::io::loadPCDFile<PointType>(PathTocornerMap, *cornerMap) == -1)
         {
             PCL_ERROR("Couldn't read CornerMap.pcd file \n");
@@ -245,6 +248,12 @@ public:
         {
             PCL_ERROR("Couldn't read SurfMap.pcd file \n");
         }
+
+        if (pcl::io::loadPCDFile<PointType>(PathGlobalMap, *globalMap) == -1)
+        {
+            PCL_ERROR("Couldn't read GlobalMap.pcd file \n");
+        }
+
         // scan-matching을 진행할 input feature map에 대한 kdtree 1회만 생성
         kdtreeCornerFromMap.reset(new pcl::KdTreeFLANN<PointType>());
         kdtreeSurfFromMap.reset(new pcl::KdTreeFLANN<PointType>());
@@ -459,12 +468,12 @@ public:
 
     void visualizeGlobalMapThread()
     {
-        ros::Rate rate(0.2);
-        while (ros::ok()){
-            rate.sleep();
-            publishGlobalMap();
-        }
-
+        // ros::Rate rate(0.2);
+        // while (ros::ok()){
+        //     rate.sleep();
+        //     publishGlobalMap();
+        // }
+        publishGlobalMap();
         if (savePCD == false)
             return;
 
@@ -478,66 +487,10 @@ public:
 
     void publishGlobalMap()
     {
-        if (pubLaserCloudSurround.getNumSubscribers() == 0)
-            return;
-
-        if (cloudKeyPoses3D->points.empty() == true)
-            return;
-
-        pcl::KdTreeFLANN<PointType>::Ptr kdtreeGlobalMap(new pcl::KdTreeFLANN<PointType>());;
-        pcl::PointCloud<PointType>::Ptr globalMapKeyPoses(new pcl::PointCloud<PointType>());
-        pcl::PointCloud<PointType>::Ptr globalMapKeyPosesDS(new pcl::PointCloud<PointType>());
-        pcl::PointCloud<PointType>::Ptr globalMapKeyFrames(new pcl::PointCloud<PointType>());
-        pcl::PointCloud<PointType>::Ptr globalMapKeyFramesDS(new pcl::PointCloud<PointType>());
-
-        // kd-tree to find near key frames to visualize
-        std::vector<int> pointSearchIndGlobalMap;
-        std::vector<float> pointSearchSqDisGlobalMap;
-        // search near key frames to visualize
-        mtx.lock();
-        kdtreeGlobalMap->setInputCloud(cloudKeyPoses3D);
-        kdtreeGlobalMap->radiusSearch(cloudKeyPoses3D->back(), globalMapVisualizationSearchRadius, pointSearchIndGlobalMap, pointSearchSqDisGlobalMap, 0);
-        mtx.unlock();
-
-        for (int i = 0; i < (int)pointSearchIndGlobalMap.size(); ++i)
-            globalMapKeyPoses->push_back(cloudKeyPoses3D->points[pointSearchIndGlobalMap[i]]);
-        // downsample near selected key frames
-        pcl::VoxelGrid<PointType> downSizeFilterGlobalMapKeyPoses; // for global map visualization
-        downSizeFilterGlobalMapKeyPoses.setLeafSize(globalMapVisualizationPoseDensity, globalMapVisualizationPoseDensity, globalMapVisualizationPoseDensity); // for global map visualization
-        downSizeFilterGlobalMapKeyPoses.setInputCloud(globalMapKeyPoses);
-        downSizeFilterGlobalMapKeyPoses.filter(*globalMapKeyPosesDS);
-        for(auto& pt : globalMapKeyPosesDS->points)
-        {
-            kdtreeGlobalMap->nearestKSearch(pt, 1, pointSearchIndGlobalMap, pointSearchSqDisGlobalMap);
-            pt.intensity = cloudKeyPoses3D->points[pointSearchIndGlobalMap[0]].intensity;
-        }
-
-        // extract visualized and downsampled key frames
-        for (int i = 0; i < (int)globalMapKeyPosesDS->size(); ++i){
-            if (pointDistance(globalMapKeyPosesDS->points[i], cloudKeyPoses3D->back()) > globalMapVisualizationSearchRadius)
-                continue;
-            int thisKeyInd = (int)globalMapKeyPosesDS->points[i].intensity;
-            *globalMapKeyFrames += *transformPointCloud(cornerCloudKeyFrames[thisKeyInd],  &cloudKeyPoses6D->points[thisKeyInd]);
-            *globalMapKeyFrames += *transformPointCloud(surfCloudKeyFrames[thisKeyInd],    &cloudKeyPoses6D->points[thisKeyInd]);
-        }
-        // downsample visualized points
-        pcl::VoxelGrid<PointType> downSizeFilterGlobalMapKeyFrames; // for global map visualization
-        downSizeFilterGlobalMapKeyFrames.setLeafSize(globalMapVisualizationLeafSize, globalMapVisualizationLeafSize, globalMapVisualizationLeafSize); // for global map visualization
-        downSizeFilterGlobalMapKeyFrames.setInputCloud(globalMapKeyFrames);
-        downSizeFilterGlobalMapKeyFrames.filter(*globalMapKeyFramesDS);
-        publishCloud(pubLaserCloudSurround, globalMapKeyFramesDS, timeLaserInfoStamp, odometryFrame);
+        downSizeFilterSurf.setInputCloud(globalMap);
+        downSizeFilterSurf.filter(*globalMap);
+        publishCloud(pubLaserCloudSurround, globalMap, timeLaserInfoStamp, odometryFrame);
     }
-
-
-
-
-
-
-
-
-
-
-
 
     void loopClosureThread()
     {
@@ -832,14 +785,24 @@ public:
         if (cloudKeyPoses3D->points.empty())
         {
             // imageProjection에서 deskew를 위해 사용한 imu값을 불러옴
-            transformTobeMapped[0] = cloudInfo.imuRollInit;
-            transformTobeMapped[1] = cloudInfo.imuPitchInit;
-            transformTobeMapped[2] = cloudInfo.imuYawInit;
+            // transformTobeMapped[0] = cloudInfo.imuRollInit;
+            // transformTobeMapped[1] = cloudInfo.imuPitchInit;
+            // transformTobeMapped[2] = cloudInfo.imuYawInit;
+
+            // if (!useImuHeadingInitialization)
+            //     transformTobeMapped[2] = 0;
+
+            // lastImuTransformation = pcl::getTransformation(0, 0, 0, cloudInfo.imuRollInit, cloudInfo.imuPitchInit, cloudInfo.imuYawInit); // save imu before return;
+            // return;
+
+            transformTobeMapped[0] = roll_initial_;
+            transformTobeMapped[1] = pitch_initial_;
+            transformTobeMapped[2] = yaw_initial_;
 
             if (!useImuHeadingInitialization)
                 transformTobeMapped[2] = 0;
 
-            lastImuTransformation = pcl::getTransformation(0, 0, 0, cloudInfo.imuRollInit, cloudInfo.imuPitchInit, cloudInfo.imuYawInit); // save imu before return;
+            lastImuTransformation = pcl::getTransformation(0, 0, 0, roll_initial_, pitch_initial_, yaw_initial_); // save imu before return;
             return;
         }
 
