@@ -198,6 +198,8 @@ public:
     gtsam::Values graphValues;
 
     const double delta_t = 0;
+    double currentCorrectionTime = 0;
+    double lastCorrectionTime = 0;
 
     int key = 1;
 
@@ -259,7 +261,7 @@ public:
     {
         std::lock_guard<std::mutex> lock(mtx);
 
-        double currentCorrectionTime = ROS_TIME(odomMsg);
+        currentCorrectionTime = ROS_TIME(odomMsg);
 
         // make sure we have imu data to integrate
         if (imuQueOpt.empty())
@@ -272,6 +274,13 @@ public:
         float r_y = odomMsg->pose.pose.orientation.y;
         float r_z = odomMsg->pose.pose.orientation.z;
         float r_w = odomMsg->pose.pose.orientation.w;
+        float v_x = odomMsg->twist.twist.linear.x;
+        float v_y = odomMsg->twist.twist.linear.y;
+        float v_z = odomMsg->twist.twist.linear.z;
+        float av_x = odomMsg->twist.twist.angular.x;
+        float av_y = odomMsg->twist.twist.angular.y;
+        float av_z = odomMsg->twist.twist.angular.z;
+
         bool degenerate = (int)odomMsg->pose.covariance[0] == 1 ? true : false;
         gtsam::Pose3 lidarPose = gtsam::Pose3(gtsam::Rot3::Quaternion(r_w, r_x, r_y, r_z), gtsam::Point3(p_x, p_y, p_z));
 
@@ -384,28 +393,48 @@ public:
         gtsam::PriorFactor<gtsam::Pose3> pose_factor(X(key), curPose, degenerate ? correctionNoise2 : correctionNoise);
         graphFactors.add(pose_factor);
 
+        // add constant velocity model
+        double dt_odom = currentCorrectionTime - lastCorrectionTime;
+        float delta_x = v_x * dt_odom;
+        float delta_y = v_y * dt_odom;
+        float delta_z = v_z * dt_odom;
+        float delta_roll = av_x * dt_odom;
+        float delta_pitch = av_y * dt_odom;
+        float delta_yaw = av_z * dt_odom;
+
+        gtsam::Rot3 deltaRot = gtsam::Rot3::RzRyRx(delta_roll, delta_pitch, delta_yaw);
+        gtsam::Pose3 deltaPose(deltaRot, gtsam::Point3(delta_x, delta_y, delta_z));
+        gtsam::BetweenFactor<gtsam::Pose3> dynamicModelFactor(
+            X(key - 1), X(key), deltaPose, 
+            gtsam::noiseModel::Diagonal::Sigmas(gtsam::Vector6::Constant(dynamicNoise)) 
+        );
+        if(dynamicNoise != 0.0)
+        {
+            graphFactors.add(dynamicModelFactor);
+        } 
+
         // add wheel factor
         // 20hz -> wheel odom, 10hz -> lidar odom
-        double w_x = 0; 
-        double w_y = 0;
-        double w_yaw = 0;
-        while(!wheelOdomQue.empty())
-        {
-            nav_msgs::Odometry thisWHEEL = wheelOdomQue.back();
-            wheelOdomQue.pop_back();
-            w_x += thisWHEEL.pose.pose.position.x;
-            w_y += thisWHEEL.pose.pose.position.y;
-            w_yaw += tf::getYaw(thisWHEEL.pose.pose.orientation);
-            if(wheelOdomQue.empty())
-            {
-                gtsam::Pose3 deltaPose(gtsam::Rot3::Yaw(w_yaw), gtsam::Point3(w_x, w_y, 0.0)); 
-                gtsam::BetweenFactor<gtsam::Pose3> wheelOdomFactor(
-                    X(key - 1), X(key), deltaPose, 
-                    gtsam::noiseModel::Diagonal::Sigmas(gtsam::Vector6::Constant(0.1)) 
-                );
-                graphFactors.add(wheelOdomFactor);
-            }
-        }
+        // double w_x = 0; 
+        // double w_y = 0;
+        // double w_yaw = 0;
+        // while(!wheelOdomQue.empty())
+        // {
+        //     nav_msgs::Odometry thisWHEEL = wheelOdomQue.back();
+        //     wheelOdomQue.pop_back();
+        //     w_x += thisWHEEL.pose.pose.position.x;
+        //     w_y += thisWHEEL.pose.pose.position.y;
+        //     w_yaw += tf::getYaw(thisWHEEL.pose.pose.orientation);
+        //     if(wheelOdomQue.empty())
+        //     {
+        //         gtsam::Pose3 deltaPose(gtsam::Rot3::Yaw(w_yaw), gtsam::Point3(w_x, w_y, 0.0)); 
+        //         gtsam::BetweenFactor<gtsam::Pose3> wheelOdomFactor(
+        //             X(key - 1), X(key), deltaPose, 
+        //             gtsam::noiseModel::Diagonal::Sigmas(gtsam::Vector6::Constant(0.01)) 
+        //         );
+        //         graphFactors.add(wheelOdomFactor);
+        //     }
+        // }
 
         // insert predicted values
         gtsam::NavState propState_ = imuIntegratorOpt_->predict(prevState_, prevBias_);
@@ -463,6 +492,8 @@ public:
 
         ++key;
         doneFirstOpt = true;
+
+        lastCorrectionTime = currentCorrectionTime;
     }
 
     bool failureDetection(const gtsam::Vector3& velCur, const gtsam::imuBias::ConstantBias& biasCur)

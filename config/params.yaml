@@ -5,12 +5,12 @@ lioven:
 
   # score "0.15"이하(엔간하면) initial + gicp pose 더해서 넣어주면 됨. 
   useInitialMatching: true
-  intial_x: 22.089228
-  intial_y: 42.861618
-  intial_z: -0.314451
-  intial_roll: -0.000288
-  intial_pitch: 0.015819
-  intial_yaw: -1.2
+  intial_x: 19.3006855714586
+  intial_y: 38.10973264281952
+  intial_z: 0.09718153058107235
+  intial_roll: 0.0031565393872463
+  intial_pitch: -0.003643042943643371
+  intial_yaw: 1.080036935727758
 
   # initialMatch 파일 관련 param x와 y에 map의 원점 gps값 넣어주면 됨. 
   PathGlobalMap: "/home/popular/catkin_ws/src/lioven/data/cloudGlobal.pcd"
@@ -45,9 +45,14 @@ lioven:
 
   # GPS Settings
   useImuHeadingInitialization: true           # if using GPS data, set to "true"
-  useGpsElevation: false                      # if GPS elevation is bad, set to "false"
+  useGpsElevation: false                     # if GPS elevation is bad, set to "false"
   gpsCovThreshold: 2.0                        # m^2, threshold for using GPS data
   poseCovThreshold: 25.0                      # m^2, threshold for using GPS data
+
+  # dynamic model noise 
+  # 0.0이면 dynamic 모델 사용 안함으로 간주. 
+  # 0.0으로 먼저 해보고 localization 잘 안되면 0.001부터 넣어서 실행해보기
+  dynamicNoise: 0.0
 
   # Export settings
   savePCD: false                              # https://github.com/TixiaoShan/LIO-SAM/issues/3
@@ -62,33 +67,31 @@ lioven:
   lidarMaxRange: 1000.0                       # default: 1000.0, maximum lidar range to be used
 
   # IMU Settings
-  # imuAccNoise: 0.009939570888238808e-03
-  # imuGyrNoise: 0.005636343949698187e-03
-  # imuAccBiasN: 0.64356659353532566e-03
-  # imuGyrBiasN: 0.35640318696367613e-03
-  # imuGravity: 9.80511
-  # imuRPYWeight: 0.01
-
-  imuAccNoise: 0.001
-  imuGyrNoise: 0.07
-  imuAccBiasN: 0.04
-  imuGyrBiasN: 1.0
+  imuAccNoise: 0.009939570888238808e-03
+  imuGyrNoise: 0.005636343949698187e-03
+  imuAccBiasN: 0.64356659353532566e-03
+  imuGyrBiasN: 0.35640318696367613e-03
   imuGravity: 9.80511
   imuRPYWeight: 0.01
+
+  # imuAccNoise: 0.001
+  # imuGyrNoise: 0.07
+  # imuAccBiasN: 0.04
+  # imuGyrBiasN: 1.0
+  # imuGravity: 9.80511
+  # imuRPYWeight: 0.01
 
 
   # Extrinsics: T_lb (lidar -> imu)
   extrinsicTrans: [0.0, 0.0, 0.0]
 
-  extrinsicRot: [0.99914, -0.039961, -0.0110534,
-                  0.0399585, 0.999201, -0.000444666,
-                  0.0110623, 2.60603e-06, 0.999939]
+  extrinsicRot: [0.998251, -0.0570303, 0.0155608,
+                0.0570029, 0.998372, 0.00219911,
+                -0.0156608, -0.00130826, 0.999877]
 
   extrinsicRPY: [1, 0, 0,
                   0, 1, 0,
                   0, 0, 1]
-
-
 
 
   # LOAM feature threshold

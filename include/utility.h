@@ -104,6 +104,7 @@ public:
     bool useGpsElevation;
     float gpsCovThreshold;
     float poseCovThreshold;
+    float dynamicNoise;
 
     // Save pcd
     bool savePCD;
