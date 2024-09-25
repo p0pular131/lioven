@@ -1,0 +1,431 @@
+!_TAG_FILE_FORMAT	2	/extended format; --format=1 will not append ;" to lines/
+!_TAG_FILE_SORTED	1	/0=unsorted, 1=sorted, 2=foldcase/
+!_TAG_PROGRAM_AUTHOR	Darren Hiebert	/dhiebert@users.sourceforge.net/
+!_TAG_PROGRAM_NAME	Exuberant Ctags	//
+!_TAG_PROGRAM_URL	http://ctags.sourceforge.net	/official site/
+!_TAG_PROGRAM_VERSION	5.9~svn20110310	//
+EIGEN_ALIGN16	src/imageProjection.cpp	/^} EIGEN_ALIGN16;$/;"	v	typeref:struct:OusterPointXYZIRT
+EIGEN_ALIGN16	src/imageProjection.cpp	/^} EIGEN_ALIGN16;$/;"	v	typeref:struct:VelodynePointXYZIRT
+EIGEN_ALIGN16	src/mapOptmization.cpp	/^} EIGEN_ALIGN16;                    \/\/ enforce SSE padding for correct memory alignment$/;"	v	typeref:struct:PointXYZIRPYT
+FeatureExtraction	src/featureExtraction.cpp	/^    FeatureExtraction()$/;"	f	class:FeatureExtraction
+FeatureExtraction	src/featureExtraction.cpp	/^class FeatureExtraction : public ParamServer$/;"	c	file:
+Horizon_SCAN	include/utility.h	/^    int Horizon_SCAN;$/;"	m	class:ParamServer
+IMUPreintegration	src/imuPreintegration.cpp	/^    IMUPreintegration()$/;"	f	class:IMUPreintegration
+IMUPreintegration	src/imuPreintegration.cpp	/^class IMUPreintegration : public ParamServer$/;"	c	file:
+ImageProjection	src/imageProjection.cpp	/^    ImageProjection():$/;"	f	class:ImageProjection
+ImageProjection	src/imageProjection.cpp	/^class ImageProjection : public ParamServer$/;"	c	file:
+LMOptimization	src/mapOptmization.cpp	/^    bool LMOptimization(int iterCount)$/;"	f	class:mapOptimization
+N_SCAN	include/utility.h	/^    int N_SCAN;$/;"	m	class:ParamServer
+OUSTER	include/utility.h	/^enum class SensorType { VELODYNE, OUSTER, LIVOX };$/;"	m	class:SensorType
+OusterPointXYZIRT	src/imageProjection.cpp	/^struct OusterPointXYZIRT {$/;"	s	file:
+PCL_ADD_INTENSITY	src/imageProjection.cpp	/^    PCL_ADD_INTENSITY;$/;"	m	struct:VelodynePointXYZIRT	file:
+PCL_ADD_INTENSITY	src/mapOptmization.cpp	/^    PCL_ADD_INTENSITY;                  \/\/ preferred way of adding a XYZ+padding$/;"	m	struct:PointXYZIRPYT	file:
+PCL_ADD_POINT4D	src/imageProjection.cpp	/^    PCL_ADD_POINT4D;$/;"	m	struct:OusterPointXYZIRT	file:
+PCL_NO_PRECOMPILE	include/utility.h	4;"	d
+ParamServer	include/utility.h	/^    ParamServer()$/;"	f	class:ParamServer
+ParamServer	include/utility.h	/^class ParamServer$/;"	c
+PathGlobalMap	include/utility.h	/^    string PathGlobalMap;$/;"	m	class:ParamServer
+PathTocornerMap	include/utility.h	/^    string PathTocornerMap;$/;"	m	class:ParamServer
+PathTosurfMap	include/utility.h	/^    string PathTosurfMap;$/;"	m	class:ParamServer
+PointCloudSaverAndMatcher	src/initialmatch.py	/^class PointCloudSaverAndMatcher:$/;"	c
+PointType	include/utility.h	/^typedef pcl::PointXYZI PointType;$/;"	t
+PointTypePose	src/mapOptmization.cpp	/^typedef PointXYZIRPYT  PointTypePose;$/;"	t	file:
+PointXYZIRPYT	src/mapOptmization.cpp	/^struct PointXYZIRPYT$/;"	s	file:
+ROS_TIME	include/utility.h	/^double ROS_TIME(T msg)$/;"	f
+SensorType	include/utility.h	/^enum class SensorType { VELODYNE, OUSTER, LIVOX };$/;"	c
+T_base_link_to_imu	config/doc/kitti2bag/kitti2bag.py	/^            T_base_link_to_imu = np.eye(4, 4)$/;"	v
+TransformFusion	src/imuPreintegration.cpp	/^    TransformFusion()$/;"	f	class:TransformFusion
+TransformFusion	src/imuPreintegration.cpp	/^class TransformFusion : public ParamServer$/;"	c	file:
+VELODYNE	include/utility.h	/^enum class SensorType { VELODYNE, OUSTER, LIVOX };$/;"	m	class:SensorType
+VelodynePointXYZIRT	src/imageProjection.cpp	/^struct VelodynePointXYZIRT$/;"	s	file:
+_UTILITY_LIDAR_ODOMETRY_H_	include/utility.h	3;"	d
+__init__	src/initialmatch.py	/^    def __init__(self):$/;"	m	class:PointCloudSaverAndMatcher
+aLoopIsClosed	src/mapOptmization.cpp	/^    bool aLoopIsClosed = false;$/;"	m	class:mapOptimization	file:
+addGPSFactor	src/mapOptmization.cpp	/^    void addGPSFactor()$/;"	f	class:mapOptimization
+addLoopFactor	src/mapOptmization.cpp	/^    void addLoopFactor()$/;"	f	class:mapOptimization
+addOdomFactor	src/mapOptmization.cpp	/^    void addOdomFactor()$/;"	f	class:mapOptimization
+allocateMemory	src/imageProjection.cpp	/^    void allocateMemory()$/;"	f	class:ImageProjection
+allocateMemory	src/mapOptmization.cpp	/^    void allocateMemory()$/;"	f	class:mapOptimization
+args	config/doc/kitti2bag/kitti2bag.py	/^    args = parser.parse_args()$/;"	v
+bag	config/doc/kitti2bag/kitti2bag.py	/^        bag = rosbag.Bag("kitti_data_odometry_{}_sequence_{}.bag".format(args.kitti_type[5:],args.sequence), 'w', compression=compression)$/;"	v
+bag	config/doc/kitti2bag/kitti2bag.py	/^        bag = rosbag.Bag("kitti_{}_drive_{}_{}.bag".format(args.date, args.drive, args.kitti_type[4:]), 'w', compression=compression)$/;"	v
+baselinkFrame	include/utility.h	/^    string baselinkFrame;$/;"	m	class:ParamServer
+bridge	config/doc/kitti2bag/kitti2bag.py	/^    bridge = CvBridge()$/;"	v
+by_value	src/featureExtraction.cpp	/^struct by_value{ $/;"	s	file:
+cachePointCloud	src/imageProjection.cpp	/^    bool cachePointCloud(const sensor_msgs::PointCloud2ConstPtr& laserCloudMsg)$/;"	f	class:ImageProjection
+calculateSmoothness	src/featureExtraction.cpp	/^    void calculateSmoothness()$/;"	f	class:FeatureExtraction
+cameras	config/doc/kitti2bag/kitti2bag.py	/^    cameras = [$/;"	v
+cloudCurvature	src/featureExtraction.cpp	/^    float *cloudCurvature;$/;"	m	class:FeatureExtraction	file:
+cloudExtraction	src/imageProjection.cpp	/^    void cloudExtraction()$/;"	f	class:ImageProjection
+cloudHandler	src/imageProjection.cpp	/^    void cloudHandler(const sensor_msgs::PointCloud2ConstPtr& laserCloudMsg)$/;"	f	class:ImageProjection
+cloudHeader	src/featureExtraction.cpp	/^    std_msgs::Header cloudHeader;$/;"	m	class:FeatureExtraction	file:
+cloudHeader	src/imageProjection.cpp	/^    std_msgs::Header cloudHeader;$/;"	m	class:ImageProjection	file:
+cloudInfo	src/featureExtraction.cpp	/^    lioven::cloud_info cloudInfo;$/;"	m	class:FeatureExtraction	file:
+cloudInfo	src/imageProjection.cpp	/^    lioven::cloud_info cloudInfo;$/;"	m	class:ImageProjection	file:
+cloudInfo	src/mapOptmization.cpp	/^    lioven::cloud_info cloudInfo;$/;"	m	class:mapOptimization	file:
+cloudKeyPoses3D	src/mapOptmization.cpp	/^    pcl::PointCloud<PointType>::Ptr cloudKeyPoses3D;$/;"	m	class:mapOptimization	file:
+cloudKeyPoses6D	src/mapOptmization.cpp	/^    pcl::PointCloud<PointTypePose>::Ptr cloudKeyPoses6D;$/;"	m	class:mapOptimization	file:
+cloudLabel	src/featureExtraction.cpp	/^    int *cloudLabel;$/;"	m	class:FeatureExtraction	file:
+cloudNeighborPicked	src/featureExtraction.cpp	/^    int *cloudNeighborPicked;$/;"	m	class:FeatureExtraction	file:
+cloudQueue	src/imageProjection.cpp	/^    std::deque<sensor_msgs::PointCloud2> cloudQueue;$/;"	m	class:ImageProjection	file:
+cloudSmoothness	src/featureExtraction.cpp	/^    std::vector<smoothness_t> cloudSmoothness;$/;"	m	class:FeatureExtraction	file:
+coeffSel	src/mapOptmization.cpp	/^    pcl::PointCloud<PointType>::Ptr coeffSel;$/;"	m	class:mapOptimization	file:
+coeffSelCornerVec	src/mapOptmization.cpp	/^    std::vector<PointType> coeffSelCornerVec;$/;"	m	class:mapOptimization	file:
+coeffSelSurfVec	src/mapOptmization.cpp	/^    std::vector<PointType> coeffSelSurfVec;$/;"	m	class:mapOptimization	file:
+columnIdnCountVec	src/imageProjection.cpp	/^    vector<int> columnIdnCountVec;$/;"	m	class:ImageProjection	file:
+combineOptimizationCoeffs	src/mapOptmization.cpp	/^    void combineOptimizationCoeffs()$/;"	f	class:mapOptimization
+compression	config/doc/kitti2bag/kitti2bag.py	/^    compression = rosbag.Compression.NONE$/;"	v
+constraintTransformation	src/mapOptmization.cpp	/^    float constraintTransformation(float value, float limit)$/;"	f	class:mapOptimization
+copy_cloudKeyPoses3D	src/mapOptmization.cpp	/^    pcl::PointCloud<PointType>::Ptr copy_cloudKeyPoses3D;$/;"	m	class:mapOptimization	file:
+copy_cloudKeyPoses6D	src/mapOptmization.cpp	/^    pcl::PointCloud<PointTypePose>::Ptr copy_cloudKeyPoses6D;$/;"	m	class:mapOptimization	file:
+cornerCloud	src/featureExtraction.cpp	/^    pcl::PointCloud<PointType>::Ptr cornerCloud;$/;"	m	class:FeatureExtraction	file:
+cornerCloudKeyFrames	src/mapOptmization.cpp	/^    vector<pcl::PointCloud<PointType>::Ptr> cornerCloudKeyFrames;$/;"	m	class:mapOptimization	file:
+cornerMap	src/mapOptmization.cpp	/^    pcl::PointCloud<PointType>::Ptr cornerMap;$/;"	m	class:mapOptimization	file:
+cornerOptimization	src/mapOptmization.cpp	/^    void cornerOptimization()$/;"	f	class:mapOptimization
+correctPoses	src/mapOptmization.cpp	/^    void correctPoses()$/;"	f	class:mapOptimization
+correctionNoise	src/imuPreintegration.cpp	/^    gtsam::noiseModel::Diagonal::shared_ptr correctionNoise;$/;"	m	class:IMUPreintegration	file:
+correctionNoise2	src/imuPreintegration.cpp	/^    gtsam::noiseModel::Diagonal::shared_ptr correctionNoise2;$/;"	m	class:IMUPreintegration	file:
+currentCloudMsg	src/imageProjection.cpp	/^    sensor_msgs::PointCloud2 currentCloudMsg;$/;"	m	class:ImageProjection	file:
+currentCorrectionTime	src/imuPreintegration.cpp	/^    double currentCorrectionTime = 0;$/;"	m	class:IMUPreintegration	file:
+current_epoch	config/doc/kitti2bag/kitti2bag.py	/^            current_epoch = (datetime.utcnow() - datetime(1970, 1, 1)).total_seconds()$/;"	v
+delta_t	src/imuPreintegration.cpp	/^    const double delta_t = 0;$/;"	m	class:IMUPreintegration	file:
+deskewFlag	src/imageProjection.cpp	/^    int deskewFlag;$/;"	m	class:ImageProjection	file:
+deskewInfo	src/imageProjection.cpp	/^    bool deskewInfo()$/;"	f	class:ImageProjection
+deskewPoint	src/imageProjection.cpp	/^    PointType deskewPoint(PointType *point, double relTime)$/;"	f	class:ImageProjection
+detectLoopClosureDistance	src/mapOptmization.cpp	/^    bool detectLoopClosureDistance(int *latestID, int *closestID)$/;"	f	class:mapOptimization
+detectLoopClosureExternal	src/mapOptmization.cpp	/^    bool detectLoopClosureExternal(int *latestID, int *closestID)$/;"	f	class:mapOptimization
+doneFirstOpt	src/imuPreintegration.cpp	/^    bool doneFirstOpt = false;$/;"	m	class:IMUPreintegration	file:
+downSizeFilter	src/featureExtraction.cpp	/^    pcl::VoxelGrid<PointType> downSizeFilter;$/;"	m	class:FeatureExtraction	file:
+downSizeFilterCorner	src/mapOptmization.cpp	/^    pcl::VoxelGrid<PointType> downSizeFilterCorner;$/;"	m	class:mapOptimization	file:
+downSizeFilterICP	src/mapOptmization.cpp	/^    pcl::VoxelGrid<PointType> downSizeFilterICP;$/;"	m	class:mapOptimization	file:
+downSizeFilterSurf	src/mapOptmization.cpp	/^    pcl::VoxelGrid<PointType> downSizeFilterSurf;$/;"	m	class:mapOptimization	file:
+downSizeFilterSurroundingKeyPoses	src/mapOptmization.cpp	/^    pcl::VoxelGrid<PointType> downSizeFilterSurroundingKeyPoses; \/\/ for surrounding key poses of scan-to-map optimization$/;"	m	class:mapOptimization	file:
+downsampleCurrentScan	src/mapOptmization.cpp	/^    void downsampleCurrentScan()$/;"	f	class:mapOptimization
+downsampleRate	include/utility.h	/^    int downsampleRate;$/;"	m	class:ParamServer
+dynamicNoise	include/utility.h	/^    float dynamicNoise;$/;"	m	class:ParamServer
+edgeFeatureMinValidNum	include/utility.h	/^    int edgeFeatureMinValidNum;$/;"	m	class:ParamServer
+edgeThreshold	include/utility.h	/^    float edgeThreshold;$/;"	m	class:ParamServer
+extQRPY	include/utility.h	/^    Eigen::Quaterniond extQRPY;$/;"	m	class:ParamServer
+extRPY	include/utility.h	/^    Eigen::Matrix3d extRPY;$/;"	m	class:ParamServer
+extRPYV	include/utility.h	/^    vector<double> extRPYV;$/;"	m	class:ParamServer
+extRot	include/utility.h	/^    Eigen::Matrix3d extRot;$/;"	m	class:ParamServer
+extRotV	include/utility.h	/^    vector<double> extRotV;$/;"	m	class:ParamServer
+extTrans	include/utility.h	/^    Eigen::Vector3d extTrans;$/;"	m	class:ParamServer
+extTransV	include/utility.h	/^    vector<double> extTransV;$/;"	m	class:ParamServer
+extractCloud	src/mapOptmization.cpp	/^    void extractCloud(pcl::PointCloud<PointType>::Ptr cloudToExtract)$/;"	f	class:mapOptimization
+extractFeatures	src/featureExtraction.cpp	/^    void extractFeatures()$/;"	f	class:FeatureExtraction
+extractForLoopClosure	src/mapOptmization.cpp	/^    void extractForLoopClosure()$/;"	f	class:mapOptimization
+extractNearby	src/mapOptmization.cpp	/^    void extractNearby()$/;"	f	class:mapOptimization
+extractSurroundingKeyFrames	src/mapOptmization.cpp	/^    void extractSurroundingKeyFrames()$/;"	f	class:mapOptimization
+extractedCloud	src/featureExtraction.cpp	/^    pcl::PointCloud<PointType>::Ptr extractedCloud;$/;"	m	class:FeatureExtraction	file:
+extractedCloud	src/imageProjection.cpp	/^    pcl::PointCloud<PointType>::Ptr   extractedCloud;$/;"	m	class:ImageProjection	file:
+failureDetection	src/imuPreintegration.cpp	/^    bool failureDetection(const gtsam::Vector3& velCur, const gtsam::imuBias::ConstantBias& biasCur)$/;"	f	class:IMUPreintegration
+findPosition	src/imageProjection.cpp	/^    void findPosition(double relTime, float *posXCur, float *posYCur, float *posZCur)$/;"	f	class:ImageProjection
+findRotation	src/imageProjection.cpp	/^    void findRotation(double pointTime, float *rotXCur, float *rotYCur, float *rotZCur)$/;"	f	class:ImageProjection
+firstPointFlag	src/imageProjection.cpp	/^    bool firstPointFlag;$/;"	m	class:ImageProjection	file:
+freeCloudInfoMemory	src/featureExtraction.cpp	/^    void freeCloudInfoMemory()$/;"	f	class:FeatureExtraction
+fullCloud	src/imageProjection.cpp	/^    pcl::PointCloud<PointType>::Ptr   fullCloud;$/;"	m	class:ImageProjection	file:
+get_static_transform	config/doc/kitti2bag/kitti2bag.py	/^def get_static_transform(from_frame_id, to_frame_id, transform):$/;"	f
+globalMap	src/mapOptmization.cpp	/^    pcl::PointCloud<PointType>::Ptr globalMap;$/;"	m	class:mapOptimization	file:
+globalMapVisualizationLeafSize	include/utility.h	/^    float globalMapVisualizationLeafSize;$/;"	m	class:ParamServer
+globalMapVisualizationPoseDensity	include/utility.h	/^    float globalMapVisualizationPoseDensity;$/;"	m	class:ParamServer
+globalMapVisualizationSearchRadius	include/utility.h	/^    float globalMapVisualizationSearchRadius;$/;"	m	class:ParamServer
+globalPath	src/mapOptmization.cpp	/^    nav_msgs::Path globalPath;$/;"	m	class:mapOptimization	file:
+gpsCovThreshold	include/utility.h	/^    float gpsCovThreshold;$/;"	m	class:ParamServer
+gpsHandler	src/mapOptmization.cpp	/^    void gpsHandler(const nav_msgs::Odometry::ConstPtr& gpsMsg)$/;"	f	class:mapOptimization
+gpsQueue	src/mapOptmization.cpp	/^    std::deque<nav_msgs::Odometry> gpsQueue;$/;"	m	class:mapOptimization	file:
+gpsTopic	include/utility.h	/^    string gpsTopic;$/;"	m	class:ParamServer
+gps_fix_topic	config/doc/kitti2bag/kitti2bag.py	/^            gps_fix_topic = '\/gps\/fix'$/;"	v
+gps_vel_topic	config/doc/kitti2bag/kitti2bag.py	/^            gps_vel_topic = '\/gps\/vel'$/;"	v
+graphFactors	src/imuPreintegration.cpp	/^    gtsam::NonlinearFactorGraph graphFactors;$/;"	m	class:IMUPreintegration	file:
+graphValues	src/imuPreintegration.cpp	/^    gtsam::Values graphValues;$/;"	m	class:IMUPreintegration	file:
+gtSAMgraph	src/mapOptmization.cpp	/^    NonlinearFactorGraph gtSAMgraph;$/;"	m	class:mapOptimization	file:
+historyKeyframeFitnessScore	include/utility.h	/^    float historyKeyframeFitnessScore;$/;"	m	class:ParamServer
+historyKeyframeSearchNum	include/utility.h	/^    int   historyKeyframeSearchNum;$/;"	m	class:ParamServer
+historyKeyframeSearchRadius	include/utility.h	/^    float historyKeyframeSearchRadius;$/;"	m	class:ParamServer
+historyKeyframeSearchTimeDiff	include/utility.h	/^    float historyKeyframeSearchTimeDiff;$/;"	m	class:ParamServer
+imu2Lidar	src/imuPreintegration.cpp	/^    gtsam::Pose3 imu2Lidar = gtsam::Pose3(gtsam::Rot3(1, 0, 0, 0), gtsam::Point3(-extTrans.x(), -extTrans.y(), -extTrans.z()));$/;"	m	class:IMUPreintegration	file:
+imuAccBiasN	include/utility.h	/^    float imuAccBiasN;$/;"	m	class:ParamServer
+imuAccNoise	include/utility.h	/^    float imuAccNoise;$/;"	m	class:ParamServer
+imuAccel2rosAccel	include/utility.h	/^void imuAccel2rosAccel(sensor_msgs::Imu *thisImuMsg, T *acc_x, T *acc_y, T *acc_z)$/;"	f
+imuAngular2rosAngular	include/utility.h	/^void imuAngular2rosAngular(sensor_msgs::Imu *thisImuMsg, T *angular_x, T *angular_y, T *angular_z)$/;"	f
+imuConverter	include/utility.h	/^    sensor_msgs::Imu imuConverter(const sensor_msgs::Imu& imu_in)$/;"	f	class:ParamServer
+imuDeskewInfo	src/imageProjection.cpp	/^    void imuDeskewInfo()$/;"	f	class:ImageProjection
+imuGravity	include/utility.h	/^    float imuGravity;$/;"	m	class:ParamServer
+imuGyrBiasN	include/utility.h	/^    float imuGyrBiasN;$/;"	m	class:ParamServer
+imuGyrNoise	include/utility.h	/^    float imuGyrNoise;$/;"	m	class:ParamServer
+imuHandler	src/imageProjection.cpp	/^    void imuHandler(const sensor_msgs::Imu::ConstPtr& imuMsg)$/;"	f	class:ImageProjection
+imuHandler	src/imuPreintegration.cpp	/^    void imuHandler(const sensor_msgs::Imu::ConstPtr& imu_raw)$/;"	f	class:IMUPreintegration
+imuIntegratorImu_	src/imuPreintegration.cpp	/^    gtsam::PreintegratedImuMeasurements *imuIntegratorImu_;$/;"	m	class:IMUPreintegration	file:
+imuIntegratorOpt_	src/imuPreintegration.cpp	/^    gtsam::PreintegratedImuMeasurements *imuIntegratorOpt_;$/;"	m	class:IMUPreintegration	file:
+imuLock	src/imageProjection.cpp	/^    std::mutex imuLock;$/;"	m	class:ImageProjection	file:
+imuOdomAffineBack	src/imuPreintegration.cpp	/^    Eigen::Affine3f imuOdomAffineBack;$/;"	m	class:TransformFusion	file:
+imuOdomAffineFront	src/imuPreintegration.cpp	/^    Eigen::Affine3f imuOdomAffineFront;$/;"	m	class:TransformFusion	file:
+imuOdomQueue	src/imuPreintegration.cpp	/^    deque<nav_msgs::Odometry> imuOdomQueue;$/;"	m	class:TransformFusion	file:
+imuOdometryHandler	src/imuPreintegration.cpp	/^    void imuOdometryHandler(const nav_msgs::Odometry::ConstPtr& odomMsg)$/;"	f	class:TransformFusion
+imuPointerCur	src/imageProjection.cpp	/^    int imuPointerCur;$/;"	m	class:ImageProjection	file:
+imuQueImu	src/imuPreintegration.cpp	/^    std::deque<sensor_msgs::Imu> imuQueImu;$/;"	m	class:IMUPreintegration	file:
+imuQueOpt	src/imuPreintegration.cpp	/^    std::deque<sensor_msgs::Imu> imuQueOpt;$/;"	m	class:IMUPreintegration	file:
+imuQueue	src/imageProjection.cpp	/^    std::deque<sensor_msgs::Imu> imuQueue;$/;"	m	class:ImageProjection	file:
+imuRPY2rosRPY	include/utility.h	/^void imuRPY2rosRPY(sensor_msgs::Imu *thisImuMsg, T *rosRoll, T *rosPitch, T *rosYaw)$/;"	f
+imuRPYWeight	include/utility.h	/^    float imuRPYWeight;$/;"	m	class:ParamServer
+imuRotX	src/imageProjection.cpp	/^    double *imuRotX = new double[queueLength];$/;"	m	class:ImageProjection	file:
+imuRotY	src/imageProjection.cpp	/^    double *imuRotY = new double[queueLength];$/;"	m	class:ImageProjection	file:
+imuRotZ	src/imageProjection.cpp	/^    double *imuRotZ = new double[queueLength];$/;"	m	class:ImageProjection	file:
+imuTime	src/imageProjection.cpp	/^    double *imuTime = new double[queueLength];$/;"	m	class:ImageProjection	file:
+imuTopic	include/utility.h	/^    string imuTopic;$/;"	m	class:ParamServer
+imu_frame_id	config/doc/kitti2bag/kitti2bag.py	/^            imu_frame_id = 'imu_link'$/;"	v
+imu_raw_topic	config/doc/kitti2bag/kitti2bag.py	/^            imu_raw_topic = '\/imu_raw'$/;"	v
+imu_topic	config/doc/kitti2bag/kitti2bag.py	/^            imu_topic = '\/kitti\/oxts\/imu'$/;"	v
+incrementalOdometryAffineBack	src/mapOptmization.cpp	/^    Eigen::Affine3f incrementalOdometryAffineBack;$/;"	m	class:mapOptimization	file:
+incrementalOdometryAffineFront	src/mapOptmization.cpp	/^    Eigen::Affine3f incrementalOdometryAffineFront;$/;"	m	class:mapOptimization	file:
+ind	src/featureExtraction.cpp	/^    size_t ind;$/;"	m	struct:smoothness_t	file:
+initialEstimate	src/mapOptmization.cpp	/^    Values initialEstimate;$/;"	m	class:mapOptimization	file:
+initializationValue	src/featureExtraction.cpp	/^    void initializationValue()$/;"	f	class:FeatureExtraction
+intensity	src/imageProjection.cpp	/^    float intensity;$/;"	m	struct:OusterPointXYZIRT	file:
+inv	config/doc/kitti2bag/kitti2bag.py	/^def inv(transform):$/;"	f
+isDegenerate	src/mapOptmization.cpp	/^    bool isDegenerate = false;$/;"	m	class:mapOptimization	file:
+isam	src/mapOptmization.cpp	/^    ISAM2 *isam;$/;"	m	class:mapOptimization	file:
+isamCurrentEstimate	src/mapOptmization.cpp	/^    Values isamCurrentEstimate;$/;"	m	class:mapOptimization	file:
+kdtreeCornerFromMap	src/mapOptmization.cpp	/^    pcl::KdTreeFLANN<PointType>::Ptr kdtreeCornerFromMap;$/;"	m	class:mapOptimization	file:
+kdtreeHistoryKeyPoses	src/mapOptmization.cpp	/^    pcl::KdTreeFLANN<PointType>::Ptr kdtreeHistoryKeyPoses;$/;"	m	class:mapOptimization	file:
+kdtreeSurfFromMap	src/mapOptmization.cpp	/^    pcl::KdTreeFLANN<PointType>::Ptr kdtreeSurfFromMap;$/;"	m	class:mapOptimization	file:
+kdtreeSurroundingKeyPosesCorner	src/mapOptmization.cpp	/^    pcl::KdTreeFLANN<PointType>::Ptr kdtreeSurroundingKeyPosesCorner;$/;"	m	class:mapOptimization	file:
+kdtreeSurroundingKeyPosesSurf	src/mapOptmization.cpp	/^    pcl::KdTreeFLANN<PointType>::Ptr kdtreeSurroundingKeyPosesSurf;$/;"	m	class:mapOptimization	file:
+kdtree_for_cornerMap	src/mapOptmization.cpp	/^    bool kdtree_for_cornerMap = true;$/;"	m	class:mapOptimization	file:
+kdtree_for_surfMap	src/mapOptmization.cpp	/^    bool kdtree_for_surfMap = true;$/;"	m	class:mapOptimization	file:
+key	src/imuPreintegration.cpp	/^    int key = 1;$/;"	m	class:IMUPreintegration	file:
+kitti	config/doc/kitti2bag/kitti2bag.py	/^        kitti = pykitti.odometry(args.dir, args.sequence)$/;"	v
+kitti	config/doc/kitti2bag/kitti2bag.py	/^        kitti = pykitti.raw(args.dir, args.date, args.drive)$/;"	v
+kitti_types	config/doc/kitti2bag/kitti2bag.py	/^    kitti_types = ["raw_synced", "odom_color", "odom_gray"]$/;"	v
+laserCloudCornerFromMap	src/mapOptmization.cpp	/^    pcl::PointCloud<PointType>::Ptr laserCloudCornerFromMap;$/;"	m	class:mapOptimization	file:
+laserCloudCornerFromMapDS	src/mapOptmization.cpp	/^    pcl::PointCloud<PointType>::Ptr laserCloudCornerFromMapDS;$/;"	m	class:mapOptimization	file:
+laserCloudCornerFromMapDSNum	src/mapOptmization.cpp	/^    int laserCloudCornerFromMapDSNum = 0;$/;"	m	class:mapOptimization	file:
+laserCloudCornerLast	src/mapOptmization.cpp	/^    pcl::PointCloud<PointType>::Ptr laserCloudCornerLast; \/\/ corner feature set from odoOptimization$/;"	m	class:mapOptimization	file:
+laserCloudCornerLastDS	src/mapOptmization.cpp	/^    pcl::PointCloud<PointType>::Ptr laserCloudCornerLastDS; \/\/ downsampled corner feature set from odoOptimization$/;"	m	class:mapOptimization	file:
+laserCloudCornerLastDSNum	src/mapOptmization.cpp	/^    int laserCloudCornerLastDSNum = 0;$/;"	m	class:mapOptimization	file:
+laserCloudIn	src/imageProjection.cpp	/^    pcl::PointCloud<PointXYZIRT>::Ptr laserCloudIn;$/;"	m	class:ImageProjection	file:
+laserCloudInfoHandler	src/featureExtraction.cpp	/^    void laserCloudInfoHandler(const lioven::cloud_infoConstPtr& msgIn)$/;"	f	class:FeatureExtraction
+laserCloudInfoHandler	src/mapOptmization.cpp	/^    void laserCloudInfoHandler(const lioven::cloud_infoConstPtr& msgIn)$/;"	f	class:mapOptimization
+laserCloudMapContainer	src/mapOptmization.cpp	/^    map<int, pair<pcl::PointCloud<PointType>, pcl::PointCloud<PointType>>> laserCloudMapContainer;$/;"	m	class:mapOptimization	file:
+laserCloudOri	src/mapOptmization.cpp	/^    pcl::PointCloud<PointType>::Ptr laserCloudOri;$/;"	m	class:mapOptimization	file:
+laserCloudOriCornerFlag	src/mapOptmization.cpp	/^    std::vector<bool> laserCloudOriCornerFlag;$/;"	m	class:mapOptimization	file:
+laserCloudOriCornerVec	src/mapOptmization.cpp	/^    std::vector<PointType> laserCloudOriCornerVec; \/\/ corner point holder for parallel computation$/;"	m	class:mapOptimization	file:
+laserCloudOriSurfFlag	src/mapOptmization.cpp	/^    std::vector<bool> laserCloudOriSurfFlag;$/;"	m	class:mapOptimization	file:
+laserCloudOriSurfVec	src/mapOptmization.cpp	/^    std::vector<PointType> laserCloudOriSurfVec; \/\/ surf point holder for parallel computation$/;"	m	class:mapOptimization	file:
+laserCloudSurfFromMap	src/mapOptmization.cpp	/^    pcl::PointCloud<PointType>::Ptr laserCloudSurfFromMap;$/;"	m	class:mapOptimization	file:
+laserCloudSurfFromMapDS	src/mapOptmization.cpp	/^    pcl::PointCloud<PointType>::Ptr laserCloudSurfFromMapDS;$/;"	m	class:mapOptimization	file:
+laserCloudSurfFromMapDSNum	src/mapOptmization.cpp	/^    int laserCloudSurfFromMapDSNum = 0;$/;"	m	class:mapOptimization	file:
+laserCloudSurfLast	src/mapOptmization.cpp	/^    pcl::PointCloud<PointType>::Ptr laserCloudSurfLast; \/\/ surf feature set from odoOptimization$/;"	m	class:mapOptimization	file:
+laserCloudSurfLastDS	src/mapOptmization.cpp	/^    pcl::PointCloud<PointType>::Ptr laserCloudSurfLastDS; \/\/ downsampled surf feature set from odoOptimization$/;"	m	class:mapOptimization	file:
+laserCloudSurfLastDSNum	src/mapOptmization.cpp	/^    int laserCloudSurfLastDSNum = 0;$/;"	m	class:mapOptimization	file:
+lastCorrectionTime	src/imuPreintegration.cpp	/^    double lastCorrectionTime = 0;$/;"	m	class:IMUPreintegration	file:
+lastImuT_imu	src/imuPreintegration.cpp	/^    double lastImuT_imu = -1;$/;"	m	class:IMUPreintegration	file:
+lastImuT_opt	src/imuPreintegration.cpp	/^    double lastImuT_opt = -1;$/;"	m	class:IMUPreintegration	file:
+lidar2Baselink	src/imuPreintegration.cpp	/^    tf::StampedTransform lidar2Baselink;$/;"	m	class:TransformFusion	file:
+lidar2Imu	src/imuPreintegration.cpp	/^    gtsam::Pose3 lidar2Imu = gtsam::Pose3(gtsam::Rot3(1, 0, 0, 0), gtsam::Point3(extTrans.x(), extTrans.y(), extTrans.z()));$/;"	m	class:IMUPreintegration	file:
+lidarFrame	include/utility.h	/^    string lidarFrame;$/;"	m	class:ParamServer
+lidarMaxRange	include/utility.h	/^    float lidarMaxRange;$/;"	m	class:ParamServer
+lidarMinRange	include/utility.h	/^    float lidarMinRange;$/;"	m	class:ParamServer
+lidarOdomAffine	src/imuPreintegration.cpp	/^    Eigen::Affine3f lidarOdomAffine;$/;"	m	class:TransformFusion	file:
+lidarOdomTime	src/imuPreintegration.cpp	/^    double lidarOdomTime = -1;$/;"	m	class:TransformFusion	file:
+lidarOdometryHandler	src/imuPreintegration.cpp	/^    void lidarOdometryHandler(const nav_msgs::Odometry::ConstPtr& odomMsg)$/;"	f	class:TransformFusion
+loopClosureEnableFlag	include/utility.h	/^    bool  loopClosureEnableFlag;$/;"	m	class:ParamServer
+loopClosureFrequency	include/utility.h	/^    float loopClosureFrequency;$/;"	m	class:ParamServer
+loopClosureThread	src/mapOptmization.cpp	/^    void loopClosureThread()$/;"	f	class:mapOptimization
+loopFindNearKeyframes	src/mapOptmization.cpp	/^    void loopFindNearKeyframes(pcl::PointCloud<PointType>::Ptr& nearKeyframes, const int& key, const int& searchNum)$/;"	f	class:mapOptimization
+loopIndexContainer	src/mapOptmization.cpp	/^    map<int, int> loopIndexContainer; \/\/ from new to old$/;"	m	class:mapOptimization	file:
+loopIndexQueue	src/mapOptmization.cpp	/^    vector<pair<int, int>> loopIndexQueue;$/;"	m	class:mapOptimization	file:
+loopInfoHandler	src/mapOptmization.cpp	/^    void loopInfoHandler(const std_msgs::Float64MultiArray::ConstPtr& loopMsg)$/;"	f	class:mapOptimization
+loopInfoVec	src/mapOptmization.cpp	/^    deque<std_msgs::Float64MultiArray> loopInfoVec;$/;"	m	class:mapOptimization	file:
+loopNoiseQueue	src/mapOptmization.cpp	/^    vector<gtsam::noiseModel::Diagonal::shared_ptr> loopNoiseQueue;$/;"	m	class:mapOptimization	file:
+loopPoseQueue	src/mapOptmization.cpp	/^    vector<gtsam::Pose3> loopPoseQueue;$/;"	m	class:mapOptimization	file:
+main	src/featureExtraction.cpp	/^int main(int argc, char** argv)$/;"	f
+main	src/imageProjection.cpp	/^int main(int argc, char** argv)$/;"	f
+main	src/imuPreintegration.cpp	/^int main(int argc, char** argv)$/;"	f
+main	src/mapOptmization.cpp	/^int main(int argc, char** argv)$/;"	f
+mapFrame	include/utility.h	/^    string mapFrame;$/;"	m	class:ParamServer
+mapOptimization	src/mapOptmization.cpp	/^    mapOptimization()$/;"	f	class:mapOptimization
+mapOptimization	src/mapOptmization.cpp	/^class mapOptimization : public ParamServer$/;"	c	file:
+mappingCornerLeafSize	include/utility.h	/^    float mappingCornerLeafSize;$/;"	m	class:ParamServer
+mappingProcessInterval	include/utility.h	/^    double mappingProcessInterval;$/;"	m	class:ParamServer
+mappingSurfLeafSize	include/utility.h	/^    float mappingSurfLeafSize ;$/;"	m	class:ParamServer
+markOccludedPoints	src/featureExtraction.cpp	/^    void markOccludedPoints()$/;"	f	class:FeatureExtraction
+matP	src/mapOptmization.cpp	/^    cv::Mat matP;$/;"	m	class:mapOptimization	file:
+match_point_cloud	src/initialmatch.py	/^    def match_point_cloud(self):$/;"	m	class:PointCloudSaverAndMatcher
+match_x	include/utility.h	/^    float match_x;$/;"	m	class:ParamServer
+match_y	include/utility.h	/^    float match_y;$/;"	m	class:ParamServer
+match_z	include/utility.h	/^    float match_z;$/;"	m	class:ParamServer
+mtx	src/imuPreintegration.cpp	/^    std::mutex mtx;$/;"	m	class:IMUPreintegration	file:
+mtx	src/imuPreintegration.cpp	/^    std::mutex mtx;$/;"	m	class:TransformFusion	file:
+mtx	src/mapOptmization.cpp	/^    std::mutex mtx;$/;"	m	class:mapOptimization	file:
+mtxLoopInfo	src/mapOptmization.cpp	/^    std::mutex mtxLoopInfo;$/;"	m	class:mapOptimization	file:
+nh	include/utility.h	/^    ros::NodeHandle nh;$/;"	m	class:ParamServer
+noise	src/imageProjection.cpp	/^    uint16_t noise;$/;"	m	struct:OusterPointXYZIRT	file:
+noiseModelBetweenBias	src/imuPreintegration.cpp	/^    gtsam::Vector noiseModelBetweenBias;$/;"	m	class:IMUPreintegration	file:
+numberOfCores	include/utility.h	/^    int numberOfCores;$/;"	m	class:ParamServer
+odoLock	src/imageProjection.cpp	/^    std::mutex odoLock;$/;"	m	class:ImageProjection	file:
+odom2affine	src/imuPreintegration.cpp	/^    Eigen::Affine3f odom2affine(nav_msgs::Odometry odom)$/;"	f	class:TransformFusion
+odomDeskewFlag	src/imageProjection.cpp	/^    bool odomDeskewFlag;$/;"	m	class:ImageProjection	file:
+odomDeskewInfo	src/imageProjection.cpp	/^    void odomDeskewInfo()$/;"	f	class:ImageProjection
+odomIncreX	src/imageProjection.cpp	/^    float odomIncreX;$/;"	m	class:ImageProjection	file:
+odomIncreY	src/imageProjection.cpp	/^    float odomIncreY;$/;"	m	class:ImageProjection	file:
+odomIncreZ	src/imageProjection.cpp	/^    float odomIncreZ;$/;"	m	class:ImageProjection	file:
+odomQueue	src/imageProjection.cpp	/^    std::deque<nav_msgs::Odometry> odomQueue;$/;"	m	class:ImageProjection	file:
+odomTopic	include/utility.h	/^    string odomTopic;$/;"	m	class:ParamServer
+odometryFrame	include/utility.h	/^    string odometryFrame;$/;"	m	class:ParamServer
+odometryHandler	src/imageProjection.cpp	/^    void odometryHandler(const nav_msgs::Odometry::ConstPtr& odometryMsg)$/;"	f	class:ImageProjection
+odometryHandler	src/imuPreintegration.cpp	/^    void odometryHandler(const nav_msgs::Odometry::ConstPtr& odomMsg)$/;"	f	class:IMUPreintegration
+odometrySurfLeafSize	include/utility.h	/^    float odometrySurfLeafSize;$/;"	m	class:ParamServer
+odometry_sequences	config/doc/kitti2bag/kitti2bag.py	/^    odometry_sequences = []$/;"	v
+operator ()	src/featureExtraction.cpp	/^    bool operator()(smoothness_t const &left, smoothness_t const &right) { $/;"	f	struct:by_value
+optimizedEstimate	src/mapOptmization.cpp	/^    Values optimizedEstimate;$/;"	m	class:mapOptimization	file:
+optimizer	src/imuPreintegration.cpp	/^    gtsam::ISAM2 optimizer;$/;"	m	class:IMUPreintegration	file:
+parser	config/doc/kitti2bag/kitti2bag.py	/^    parser = argparse.ArgumentParser(description = "Convert KITTI dataset to ROS bag file the easy way!")$/;"	v
+pclPointToAffine3f	src/mapOptmization.cpp	/^    Eigen::Affine3f pclPointToAffine3f(PointTypePose thisPoint)$/;"	f	class:mapOptimization
+pclPointTogtsamPose3	src/mapOptmization.cpp	/^    gtsam::Pose3 pclPointTogtsamPose3(PointTypePose thisPoint)$/;"	f	class:mapOptimization
+performLoopClosure	src/mapOptmization.cpp	/^    void performLoopClosure()$/;"	f	class:mapOptimization
+pitch	src/mapOptmization.cpp	/^    float pitch;$/;"	m	struct:PointXYZIRPYT	file:
+pitch_initial_	include/utility.h	/^    float pitch_initial_;$/;"	m	class:ParamServer
+pointAssociateToMap	src/mapOptmization.cpp	/^    void pointAssociateToMap(PointType const * const pi, PointType * const po)$/;"	f	class:mapOptimization
+pointCloudTopic	include/utility.h	/^    string pointCloudTopic;$/;"	m	class:ParamServer
+pointDistance	include/utility.h	/^float pointDistance(PointType p)$/;"	f
+pointDistance	include/utility.h	/^float pointDistance(PointType p1, PointType p2)$/;"	f
+point_cloud_callback	src/initialmatch.py	/^    def point_cloud_callback(self, msg):$/;"	m	class:PointCloudSaverAndMatcher
+poseCovThreshold	include/utility.h	/^    float poseCovThreshold;$/;"	m	class:ParamServer
+poseCovariance	src/mapOptmization.cpp	/^    Eigen::MatrixXd poseCovariance;$/;"	m	class:mapOptimization	file:
+prevBiasOdom	src/imuPreintegration.cpp	/^    gtsam::imuBias::ConstantBias prevBiasOdom;$/;"	m	class:IMUPreintegration	file:
+prevBias_	src/imuPreintegration.cpp	/^    gtsam::imuBias::ConstantBias prevBias_;$/;"	m	class:IMUPreintegration	file:
+prevPose_	src/imuPreintegration.cpp	/^    gtsam::Pose3 prevPose_;$/;"	m	class:IMUPreintegration	file:
+prevStateOdom	src/imuPreintegration.cpp	/^    gtsam::NavState prevStateOdom;$/;"	m	class:IMUPreintegration	file:
+prevState_	src/imuPreintegration.cpp	/^    gtsam::NavState prevState_;$/;"	m	class:IMUPreintegration	file:
+prevVel_	src/imuPreintegration.cpp	/^    gtsam::Vector3 prevVel_;$/;"	m	class:IMUPreintegration	file:
+priorBiasNoise	src/imuPreintegration.cpp	/^    gtsam::noiseModel::Diagonal::shared_ptr priorBiasNoise;$/;"	m	class:IMUPreintegration	file:
+priorPoseNoise	src/imuPreintegration.cpp	/^    gtsam::noiseModel::Diagonal::shared_ptr priorPoseNoise;$/;"	m	class:IMUPreintegration	file:
+priorVelNoise	src/imuPreintegration.cpp	/^    gtsam::noiseModel::Diagonal::shared_ptr priorVelNoise;$/;"	m	class:IMUPreintegration	file:
+projectPointCloud	src/imageProjection.cpp	/^    void projectPointCloud()$/;"	f	class:ImageProjection
+pubCloudRegisteredRaw	src/mapOptmization.cpp	/^    ros::Publisher pubCloudRegisteredRaw;$/;"	m	class:mapOptimization	file:
+pubCornerPoints	src/featureExtraction.cpp	/^    ros::Publisher pubCornerPoints;$/;"	m	class:FeatureExtraction	file:
+pubExtractedCloud	src/imageProjection.cpp	/^    ros::Publisher pubExtractedCloud;$/;"	m	class:ImageProjection	file:
+pubHistoryKeyFrames	src/mapOptmization.cpp	/^    ros::Publisher pubHistoryKeyFrames;$/;"	m	class:mapOptimization	file:
+pubIcpKeyFrames	src/mapOptmization.cpp	/^    ros::Publisher pubIcpKeyFrames;$/;"	m	class:mapOptimization	file:
+pubImuOdometry	src/imuPreintegration.cpp	/^    ros::Publisher pubImuOdometry;$/;"	m	class:IMUPreintegration	file:
+pubImuOdometry	src/imuPreintegration.cpp	/^    ros::Publisher pubImuOdometry;$/;"	m	class:TransformFusion	file:
+pubImuPath	src/imuPreintegration.cpp	/^    ros::Publisher pubImuPath;$/;"	m	class:TransformFusion	file:
+pubKeyPoses	src/mapOptmization.cpp	/^    ros::Publisher pubKeyPoses;$/;"	m	class:mapOptimization	file:
+pubLaserCloud	src/imageProjection.cpp	/^    ros::Publisher  pubLaserCloud;$/;"	m	class:ImageProjection	file:
+pubLaserCloudInfo	src/featureExtraction.cpp	/^    ros::Publisher pubLaserCloudInfo;$/;"	m	class:FeatureExtraction	file:
+pubLaserCloudInfo	src/imageProjection.cpp	/^    ros::Publisher pubLaserCloudInfo;$/;"	m	class:ImageProjection	file:
+pubLaserCloudSurround	src/mapOptmization.cpp	/^    ros::Publisher pubLaserCloudSurround;$/;"	m	class:mapOptimization	file:
+pubLaserOdometryGlobal	src/mapOptmization.cpp	/^    ros::Publisher pubLaserOdometryGlobal;$/;"	m	class:mapOptimization	file:
+pubLaserOdometryIncremental	src/mapOptmization.cpp	/^    ros::Publisher pubLaserOdometryIncremental;$/;"	m	class:mapOptimization	file:
+pubLoopConstraintEdge	src/mapOptmization.cpp	/^    ros::Publisher pubLoopConstraintEdge;$/;"	m	class:mapOptimization	file:
+pubPath	src/mapOptmization.cpp	/^    ros::Publisher pubPath;$/;"	m	class:mapOptimization	file:
+pubRecentKeyFrame	src/mapOptmization.cpp	/^    ros::Publisher pubRecentKeyFrame;$/;"	m	class:mapOptimization	file:
+pubRecentKeyFrames	src/mapOptmization.cpp	/^    ros::Publisher pubRecentKeyFrames;$/;"	m	class:mapOptimization	file:
+pubSLAMInfo	src/mapOptmization.cpp	/^    ros::Publisher pubSLAMInfo;$/;"	m	class:mapOptimization	file:
+pubSurfacePoints	src/featureExtraction.cpp	/^    ros::Publisher pubSurfacePoints;$/;"	m	class:FeatureExtraction	file:
+publishCloud	include/utility.h	/^sensor_msgs::PointCloud2 publishCloud(const ros::Publisher& thisPub, const T& thisCloud, ros::Time thisStamp, std::string thisFrame)$/;"	f
+publishClouds	src/imageProjection.cpp	/^    void publishClouds()$/;"	f	class:ImageProjection
+publishFeatureCloud	src/featureExtraction.cpp	/^    void publishFeatureCloud()$/;"	f	class:FeatureExtraction
+publishFrames	src/mapOptmization.cpp	/^    void publishFrames()$/;"	f	class:mapOptimization
+publishGlobalMap	src/mapOptmization.cpp	/^    void publishGlobalMap()$/;"	f	class:mapOptimization
+publishOdometry	src/mapOptmization.cpp	/^    void publishOdometry()$/;"	f	class:mapOptimization
+queueLength	src/imageProjection.cpp	/^const int queueLength = 2000;$/;"	v
+range	src/imageProjection.cpp	/^    uint32_t range;$/;"	m	struct:OusterPointXYZIRT	file:
+rangeMat	src/imageProjection.cpp	/^    cv::Mat rangeMat;$/;"	m	class:ImageProjection	file:
+read_kitty_format_poses	src/initialmatch.py	/^    def read_kitty_format_poses(self, path):$/;"	m	class:PointCloudSaverAndMatcher
+read_pcd_file	src/initialmatch.py	/^    def read_pcd_file(self, pcd_file_path):$/;"	m	class:PointCloudSaverAndMatcher
+reflectivity	src/imageProjection.cpp	/^    uint16_t reflectivity;$/;"	m	struct:OusterPointXYZIRT	file:
+resetOptimization	src/imuPreintegration.cpp	/^    void resetOptimization()$/;"	f	class:IMUPreintegration
+resetParameters	src/imageProjection.cpp	/^    void resetParameters()$/;"	f	class:ImageProjection
+resetParams	src/imuPreintegration.cpp	/^    void resetParams()$/;"	f	class:IMUPreintegration
+ring	src/imageProjection.cpp	/^    uint16_t ring;$/;"	m	struct:VelodynePointXYZIRT	file:
+ring	src/imageProjection.cpp	/^    uint8_t ring;$/;"	m	struct:OusterPointXYZIRT	file:
+robot_id	include/utility.h	/^    std::string robot_id;$/;"	m	class:ParamServer
+roll	src/mapOptmization.cpp	/^    float roll;$/;"	m	struct:PointXYZIRPYT	file:
+roll_initial_	include/utility.h	/^    float roll_initial_;$/;"	m	class:ParamServer
+rotation_tollerance	include/utility.h	/^    float rotation_tollerance;$/;"	m	class:ParamServer
+saveFrame	src/mapOptmization.cpp	/^    bool saveFrame()$/;"	f	class:mapOptimization
+saveKeyFramesAndFactor	src/mapOptmization.cpp	/^    void saveKeyFramesAndFactor()$/;"	f	class:mapOptimization
+saveMapService	src/mapOptmization.cpp	/^    bool saveMapService(lioven::save_mapRequest& req, lioven::save_mapResponse& res)$/;"	f	class:mapOptimization
+savePCD	include/utility.h	/^    bool savePCD;$/;"	m	class:ParamServer
+savePCDDirectory	include/utility.h	/^    string savePCDDirectory;$/;"	m	class:ParamServer
+save_camera_data	config/doc/kitti2bag/kitti2bag.py	/^def save_camera_data(bag, kitti_type, kitti, util, bridge, camera, camera_frame_id, topic, initial_time):$/;"	f
+save_dynamic_tf	config/doc/kitti2bag/kitti2bag.py	/^def save_dynamic_tf(bag, kitti, kitti_type, initial_time):$/;"	f
+save_gps_fix_data	config/doc/kitti2bag/kitti2bag.py	/^def save_gps_fix_data(bag, kitti, gps_frame_id, topic):$/;"	f
+save_gps_vel_data	config/doc/kitti2bag/kitti2bag.py	/^def save_gps_vel_data(bag, kitti, gps_frame_id, topic):$/;"	f
+save_imu_data	config/doc/kitti2bag/kitti2bag.py	/^def save_imu_data(bag, kitti, imu_frame_id, topic):$/;"	f
+save_imu_data_raw	config/doc/kitti2bag/kitti2bag.py	/^def save_imu_data_raw(bag, kitti, imu_frame_id, topic):$/;"	f
+save_static_transforms	config/doc/kitti2bag/kitti2bag.py	/^def save_static_transforms(bag, transforms, timestamps):$/;"	f
+save_velo_data	config/doc/kitti2bag/kitti2bag.py	/^def save_velo_data(bag, kitti, velo_frame_id, topic):$/;"	f
+scan2MapOptimization	src/mapOptmization.cpp	/^    void scan2MapOptimization()$/;"	f	class:mapOptimization
+sensor	include/utility.h	/^    SensorType sensor;$/;"	m	class:ParamServer
+smoothness_t	src/featureExtraction.cpp	/^struct smoothness_t{ $/;"	s	file:
+srvSaveMap	src/mapOptmization.cpp	/^    ros::ServiceServer srvSaveMap;$/;"	m	class:mapOptimization	file:
+subCloud	src/mapOptmization.cpp	/^    ros::Subscriber subCloud;$/;"	m	class:mapOptimization	file:
+subGPS	src/mapOptmization.cpp	/^    ros::Subscriber subGPS;$/;"	m	class:mapOptimization	file:
+subImu	src/imageProjection.cpp	/^    ros::Subscriber subImu;$/;"	m	class:ImageProjection	file:
+subImu	src/imuPreintegration.cpp	/^    ros::Subscriber subImu;$/;"	m	class:IMUPreintegration	file:
+subImuOdometry	src/imuPreintegration.cpp	/^    ros::Subscriber subImuOdometry;$/;"	m	class:TransformFusion	file:
+subLaserCloud	src/imageProjection.cpp	/^    ros::Subscriber subLaserCloud;$/;"	m	class:ImageProjection	file:
+subLaserCloudInfo	src/featureExtraction.cpp	/^    ros::Subscriber subLaserCloudInfo;$/;"	m	class:FeatureExtraction	file:
+subLaserOdometry	src/imuPreintegration.cpp	/^    ros::Subscriber subLaserOdometry;$/;"	m	class:TransformFusion	file:
+subLoop	src/mapOptmization.cpp	/^    ros::Subscriber subLoop;$/;"	m	class:mapOptimization	file:
+subOdom	src/imageProjection.cpp	/^    ros::Subscriber subOdom;$/;"	m	class:ImageProjection	file:
+subOdometry	src/imuPreintegration.cpp	/^    ros::Subscriber subOdometry;$/;"	m	class:IMUPreintegration	file:
+subwheelOdom	src/imuPreintegration.cpp	/^    ros::Subscriber subwheelOdom;$/;"	m	class:IMUPreintegration	file:
+surfCloudKeyFrames	src/mapOptmization.cpp	/^    vector<pcl::PointCloud<PointType>::Ptr> surfCloudKeyFrames;$/;"	m	class:mapOptimization	file:
+surfFeatureMinValidNum	include/utility.h	/^    int surfFeatureMinValidNum;$/;"	m	class:ParamServer
+surfMap	src/mapOptmization.cpp	/^    pcl::PointCloud<PointType>::Ptr surfMap;$/;"	m	class:mapOptimization	file:
+surfOptimization	src/mapOptmization.cpp	/^    void surfOptimization()$/;"	f	class:mapOptimization
+surfThreshold	include/utility.h	/^    float surfThreshold;$/;"	m	class:ParamServer
+surfaceCloud	src/featureExtraction.cpp	/^    pcl::PointCloud<PointType>::Ptr surfaceCloud;$/;"	m	class:FeatureExtraction	file:
+surroundingKeyframeDensity	include/utility.h	/^    float surroundingKeyframeDensity;$/;"	m	class:ParamServer
+surroundingKeyframeSearchRadius	include/utility.h	/^    float surroundingKeyframeSearchRadius;$/;"	m	class:ParamServer
+surroundingKeyframeSize	include/utility.h	/^    int   surroundingKeyframeSize;$/;"	m	class:ParamServer
+surroundingkeyframeAddingAngleThreshold	include/utility.h	/^    float surroundingkeyframeAddingAngleThreshold; $/;"	m	class:ParamServer
+surroundingkeyframeAddingDistThreshold	include/utility.h	/^    float surroundingkeyframeAddingDistThreshold; $/;"	m	class:ParamServer
+systemInitialized	src/imuPreintegration.cpp	/^    bool systemInitialized = false;$/;"	m	class:IMUPreintegration	file:
+t	src/imageProjection.cpp	/^    uint32_t t;$/;"	m	struct:OusterPointXYZIRT	file:
+tfListener	src/imuPreintegration.cpp	/^    tf::TransformListener tfListener;$/;"	m	class:TransformFusion	file:
+time	src/imageProjection.cpp	/^    float time;$/;"	m	struct:VelodynePointXYZIRT	file:
+time	src/mapOptmization.cpp	/^    double time;$/;"	m	struct:PointXYZIRPYT	file:
+timeLaserInfoCur	src/mapOptmization.cpp	/^    double timeLaserInfoCur;$/;"	m	class:mapOptimization	file:
+timeLaserInfoStamp	src/mapOptmization.cpp	/^    ros::Time timeLaserInfoStamp;$/;"	m	class:mapOptimization	file:
+timeScanCur	src/imageProjection.cpp	/^    double timeScanCur;$/;"	m	class:ImageProjection	file:
+timeScanEnd	src/imageProjection.cpp	/^    double timeScanEnd;$/;"	m	class:ImageProjection	file:
+tmpOusterCloudIn	src/imageProjection.cpp	/^    pcl::PointCloud<OusterPointXYZIRT>::Ptr tmpOusterCloudIn;$/;"	m	class:ImageProjection	file:
+trans2Affine3f	src/mapOptmization.cpp	/^    Eigen::Affine3f trans2Affine3f(float transformIn[])$/;"	f	class:mapOptimization
+trans2PointTypePose	src/mapOptmization.cpp	/^    PointTypePose trans2PointTypePose(float transformIn[])$/;"	f	class:mapOptimization
+trans2gtsamPose	src/mapOptmization.cpp	/^    gtsam::Pose3 trans2gtsamPose(float transformIn[])$/;"	f	class:mapOptimization
+transPointAssociateToMap	src/mapOptmization.cpp	/^    Eigen::Affine3f transPointAssociateToMap;$/;"	m	class:mapOptimization	file:
+transStartInverse	src/imageProjection.cpp	/^    Eigen::Affine3f transStartInverse;$/;"	m	class:ImageProjection	file:
+transformPointCloud	src/mapOptmization.cpp	/^    pcl::PointCloud<PointType>::Ptr transformPointCloud(pcl::PointCloud<PointType>::Ptr cloudIn, PointTypePose* transformIn)$/;"	f	class:mapOptimization
+transformTobeMapped	src/mapOptmization.cpp	/^    float transformTobeMapped[6];$/;"	m	class:mapOptimization	file:
+transformUpdate	src/mapOptmization.cpp	/^    void transformUpdate()$/;"	f	class:mapOptimization
+transforms	config/doc/kitti2bag/kitti2bag.py	/^            transforms = [$/;"	v
+updateInitialGuess	src/mapOptmization.cpp	/^    void updateInitialGuess()$/;"	f	class:mapOptimization
+updatePath	src/mapOptmization.cpp	/^    void updatePath(const PointTypePose& pose_in)$/;"	f	class:mapOptimization
+updatePointAssociateToMap	src/mapOptmization.cpp	/^    void updatePointAssociateToMap()$/;"	f	class:mapOptimization
+useGpsElevation	include/utility.h	/^    bool useGpsElevation;$/;"	m	class:ParamServer
+useImuHeadingInitialization	include/utility.h	/^    bool useImuHeadingInitialization;$/;"	m	class:ParamServer
+useInitialMatching	include/utility.h	/^    bool useInitialMatching;$/;"	m	class:ParamServer
+used_cameras	config/doc/kitti2bag/kitti2bag.py	/^                used_cameras = cameras[-2:]$/;"	v
+used_cameras	config/doc/kitti2bag/kitti2bag.py	/^                used_cameras = cameras[:2]$/;"	v
+util	config/doc/kitti2bag/kitti2bag.py	/^            util = pykitti.utils.read_calib_file(os.path.join(args.dir,'sequences',args.sequence, 'calib.txt'))$/;"	v
+util	config/doc/kitti2bag/kitti2bag.py	/^            util = pykitti.utils.read_calib_file(os.path.join(kitti.calib_path, 'calib_cam_to_cam.txt'))$/;"	v
+value	src/featureExtraction.cpp	/^    float value;$/;"	m	struct:smoothness_t	file:
+velo_frame_id	config/doc/kitti2bag/kitti2bag.py	/^            velo_frame_id = 'velodyne'$/;"	v
+velo_topic	config/doc/kitti2bag/kitti2bag.py	/^            velo_topic = '\/points_raw'$/;"	v
+visualizeGlobalMapThread	src/mapOptmization.cpp	/^    void visualizeGlobalMapThread()$/;"	f	class:mapOptimization
+visualizeLoopClosure	src/mapOptmization.cpp	/^    void visualizeLoopClosure()$/;"	f	class:mapOptimization
+wheelOdomHandler	src/imuPreintegration.cpp	/^    void wheelOdomHandler(const nav_msgs::Odometry::ConstPtr& odomMsg)$/;"	f	class:IMUPreintegration
+wheelOdomQue	src/imuPreintegration.cpp	/^    std::deque<nav_msgs::Odometry> wheelOdomQue;$/;"	m	class:IMUPreintegration	file:
+x_initial_	include/utility.h	/^    float x_initial_;$/;"	m	class:ParamServer
+y_initial_	include/utility.h	/^    float y_initial_;$/;"	m	class:ParamServer
+yaw	src/mapOptmization.cpp	/^    float yaw;$/;"	m	struct:PointXYZIRPYT	file:
+yaw_initial_	include/utility.h	/^    float yaw_initial_;$/;"	m	class:ParamServer
+z_initial_	include/utility.h	/^    float z_initial_;$/;"	m	class:ParamServer
+z_tollerance	include/utility.h	/^    float z_tollerance; $/;"	m	class:ParamServer
+~ImageProjection	src/imageProjection.cpp	/^    ~ImageProjection(){}$/;"	f	class:ImageProjection

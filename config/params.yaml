@@ -5,20 +5,27 @@ lioven:
 
   # score "0.15"이하(엔간하면) initial + gicp pose 더해서 넣어주면 됨. 
   useInitialMatching: true
-  intial_x: 19.3006855714586
-  intial_y: 38.10973264281952
-  intial_z: 0.09718153058107235
-  intial_roll: 0.0031565393872463
-  intial_pitch: -0.003643042943643371
-  intial_yaw: 1.080036935727758
+  intial_x: 1.332017212539935
+  intial_y: 2.578101951049523
+  intial_z: -0.18167360210617142
+  intial_roll: 0.006676114593436095
+  intial_pitch: -0.009562662456731763
+  intial_yaw: 1.088094333360762
+
+  # intial_x: 189.22876546478628
+  # intial_y: 81.55680391354821
+  # intial_z: 1.9826342349772281
+  # intial_roll: -0.01258387225898052
+  # intial_pitch: 0.015197046871113784
+  # intial_yaw: 0.8764653601741064
 
   # initialMatch 파일 관련 param x와 y에 map의 원점 gps값 넣어주면 됨. 
   PathGlobalMap: "/home/popular/catkin_ws/src/lioven/data/cloudGlobal.pcd"
   
   # yesun origin
-  match_x: 126.77290479999999
-  match_y: 37.2388142
-  match_z: 32.975
+  # match_x: 126.77290479999999
+  # match_y: 37.2388142
+  # match_z: 32.975
   
   # # bonsun origin
   # match_x: 126.77307719999999
@@ -35,7 +42,7 @@ lioven:
   pointCloudTopic: "velodyne_points"               # Point cloud data
   imuTopic: "imu"                         # IMU data
   odomTopic: "odometry/imu"                   # IMU pre-preintegration odometry, same frequency as IMU
-  gpsTopic: "odometry/gpsz"                   # GPS odometry topic from navsat, see module_navsat.launch file
+  gpsTopic: "odometry/gps"                   # GPS odometry topic from navsat, see module_navsat.launch file
 
   # Frames
   lidarFrame: "base_link"
@@ -46,13 +53,13 @@ lioven:
   # GPS Settings
   useImuHeadingInitialization: true           # if using GPS data, set to "true"
   useGpsElevation: false                     # if GPS elevation is bad, set to "false"
-  gpsCovThreshold: 2.0                        # m^2, threshold for using GPS data
-  poseCovThreshold: 25.0                      # m^2, threshold for using GPS data
+  gpsCovThreshold: 20.0                        # m^2, threshold for using GPS data
+  poseCovThreshold: 5.0                      # m^2, threshold for using GPS data
 
   # dynamic model noise 
   # 0.0이면 dynamic 모델 사용 안함으로 간주. 
   # 0.0으로 먼저 해보고 localization 잘 안되면 0.001부터 넣어서 실행해보기
-  dynamicNoise: 0.0
+  dynamicNoise: 0.0026
 
   # Export settings
   savePCD: false                              # https://github.com/TixiaoShan/LIO-SAM/issues/3
@@ -89,6 +96,10 @@ lioven:
                 0.0570029, 0.998372, 0.00219911,
                 -0.0156608, -0.00130826, 0.999877]
 
+  # extrinsicRot: [0.999727, -0.0217532, 0.00854488
+  #                 ,0.0215519, 0.999503, 0.0229885
+  #               ,-0.00904071, -0.022798, 0.999699]
+
   extrinsicRPY: [1, 0, 0,
                   0, 1, 0,
                   0, 0, 1]
@@ -114,8 +125,8 @@ lioven:
   mappingProcessInterval: 0.15                  # seconds, regulate mapping frequency
 
   # Surrounding map
-  surroundingkeyframeAddingDistThreshold: 1.0   # meters, regulate keyframe adding threshold
-  surroundingkeyframeAddingAngleThreshold: 0.2  # radians, regulate keyframe adding threshold
+  surroundingkeyframeAddingDistThreshold: 0.0   # meters, regulate keyframe adding threshold
+  surroundingkeyframeAddingAngleThreshold: 0.0  # radians, regulate keyframe adding threshold
   surroundingKeyframeDensity: 2.0               # meters, downsample surrounding keyframe poses   
   surroundingKeyframeSearchRadius: 50.0         # meters, within n meters scan-to-map optimization (when loop closure disabled)
 

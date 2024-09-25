@@ -187,6 +187,7 @@ public:
         nh.param<float>("lioven/intial_roll", roll_initial_, 0.0);
         nh.param<float>("lioven/intial_pitch", pitch_initial_, 0.0);
         nh.param<float>("lioven/intial_yaw", yaw_initial_, 0.0);
+        nh.param<float>("lioven/dynamicNoise", dynamicNoise, 0.0);
 
         nh.param<std::string>("lioven/PathGlobalMap", PathGlobalMap, "cloudGlobal.pcd");
         nh.param<float>("lioven/match_x", match_x, 0.0);
@@ -205,7 +206,7 @@ public:
 
         nh.param<bool>("lioven/useImuHeadingInitialization", useImuHeadingInitialization, false);
         nh.param<bool>("lioven/useGpsElevation", useGpsElevation, false);
-        nh.param<float>("lioven/gpsCovThreshold", gpsCovThreshold, 2.0);
+        nh.param<float>("lioven/gpsCovThreshold", gpsCovThreshold, 0.0);
         nh.param<float>("lioven/poseCovThreshold", poseCovThreshold, 25.0);
 
         nh.param<bool>("lioven/savePCD", savePCD, false);

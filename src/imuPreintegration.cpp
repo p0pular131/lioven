@@ -409,7 +409,7 @@ public:
             gtsam::noiseModel::Diagonal::Sigmas(gtsam::Vector6::Constant(dynamicNoise)) 
         );
         if(dynamicNoise != 0.0)
-        {
+        {      
             graphFactors.add(dynamicModelFactor);
         } 
 
@@ -430,7 +430,7 @@ public:
         //         gtsam::Pose3 deltaPose(gtsam::Rot3::Yaw(w_yaw), gtsam::Point3(w_x, w_y, 0.0)); 
         //         gtsam::BetweenFactor<gtsam::Pose3> wheelOdomFactor(
         //             X(key - 1), X(key), deltaPose, 
-        //             gtsam::noiseModel::Diagonal::Sigmas(gtsam::Vector6::Constant(0.01)) 
+        //             gtsam::noiseModel::Diagonal::Sigmas(gtsam::Vector6::Constant(dynamicNoise)) 
         //         );
         //         graphFactors.add(wheelOdomFactor);
         //     }
