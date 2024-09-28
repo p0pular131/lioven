@@ -21,8 +21,8 @@ class PointCloudSaverAndMatcher:
         self.pcd_save_path = "first_scan.pcd"
 
         # Global map and key poses for matching
-        self.global_map_np = self.read_pcd_file("../data/cloudGlobal.pcd")
-        self.key_poses = self.read_kitty_format_poses("../data/optimized_poses.txt")
+        self.global_map_np = self.read_pcd_file("../data/bonsun/cloudGlobal.pcd")
+        self.key_poses = self.read_kitty_format_poses("../data/bonsun/optimized_poses.txt")
 
     def point_cloud_callback(self, msg):
         # Convert ROS PointCloud2 message to PCL PointCloud
@@ -98,7 +98,12 @@ class PointCloudSaverAndMatcher:
         R = Rotation.from_matrix(est_pose[:3, :3])
         x, y, z = est_pose[0, 3], est_pose[1, 3], est_pose[2, 3]
         euler = R.as_euler('xyz')
-        rospy.loginfo(f"Estimated pose: {x} {y} {z} {euler[0]} {euler[1]} {euler[2]}")
+        print(f"intial_x: {x}\n" 
+            f"intial_y: {y}\n" 
+            f"intial_z: {z}\n" 
+            f"intial_roll: {euler[0]}\n" 
+            f"intial_pitch: {euler[1]}\n" 
+            f"intial_yaw: {euler[2]}")
 
 if __name__ == '__main__':
     try:

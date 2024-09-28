@@ -4,7 +4,6 @@ project(lioven)
 set(CMAKE_BUILD_TYPE "Release")
 set(CMAKE_CXX_FLAGS "-std=c++17")
 set(CMAKE_CXX_FLAGS_RELEASE "-O3 -Wall -g -pthread")
-
 find_package(catkin REQUIRED COMPONENTS
   tf
   roscpp
@@ -19,6 +18,7 @@ find_package(catkin REQUIRED COMPONENTS
   nav_msgs
   message_generation
   visualization_msgs
+  fast_gicp
 )
 
 find_package(OpenMP REQUIRED)
@@ -26,6 +26,7 @@ find_package(PCL REQUIRED QUIET)
 find_package(OpenCV REQUIRED QUIET)
 find_package(GTSAM REQUIRED QUIET)
 find_package(Boost REQUIRED COMPONENTS timer)
+find_package(fast_gicp REQUIRED)
 
 add_message_files(
   DIRECTORY msg
@@ -68,6 +69,7 @@ include_directories(
 	${PCL_INCLUDE_DIRS}
   ${OpenCV_INCLUDE_DIRS}
 	${GTSAM_INCLUDE_DIR}
+  ${Boost_INCLUDE_DIRS}
 )
 
 # link directories
@@ -76,11 +78,13 @@ link_directories(
 	${PCL_LIBRARY_DIRS}
   ${OpenCV_LIBRARY_DIRS}
   ${GTSAM_LIBRARY_DIRS}
+  ${fast_gicp_LIBRARIES}
 )
 
 ###########
 ## Build ##
 ###########
+
 
 # Range Image Projection
 add_executable(${PROJECT_NAME}_imageProjection src/imageProjection.cpp)
@@ -96,7 +100,7 @@ target_link_libraries(${PROJECT_NAME}_featureExtraction ${catkin_LIBRARIES} ${PC
 add_executable(${PROJECT_NAME}_mapOptmization src/mapOptmization.cpp)
 add_dependencies(${PROJECT_NAME}_mapOptmization ${catkin_EXPORTED_TARGETS} ${PROJECT_NAME}_generate_messages_cpp)
 target_compile_options(${PROJECT_NAME}_mapOptmization PRIVATE ${OpenMP_CXX_FLAGS})
-target_link_libraries(${PROJECT_NAME}_mapOptmization Boost::timer ${catkin_LIBRARIES} ${PCL_LIBRARIES} ${OpenCV_LIBRARIES} ${OpenMP_CXX_FLAGS} gtsam)
+target_link_libraries(${PROJECT_NAME}_mapOptmization Boost::timer ${catkin_LIBRARIES} ${PCL_LIBRARIES} ${OpenCV_LIBRARIES} ${OpenMP_CXX_FLAGS} gtsam ${fast_gicp_LIBRARIES})
 
 # IMU Preintegration
 add_executable(${PROJECT_NAME}_imuPreintegration src/imuPreintegration.cpp)

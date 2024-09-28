@@ -105,6 +105,8 @@ public:
     float gpsCovThreshold;
     float poseCovThreshold;
     float dynamicNoise;
+    float gpsNoise;
+    float gpsTimeThreshold;
 
     // Save pcd
     bool savePCD;
@@ -188,6 +190,8 @@ public:
         nh.param<float>("lioven/intial_pitch", pitch_initial_, 0.0);
         nh.param<float>("lioven/intial_yaw", yaw_initial_, 0.0);
         nh.param<float>("lioven/dynamicNoise", dynamicNoise, 0.0);
+        nh.param<float>("lioven/gpsNoise", gpsNoise, 0.001);
+        nh.param<float>("lioven/gpsTimeThreshold", gpsTimeThreshold, 0.1);
 
         nh.param<std::string>("lioven/PathGlobalMap", PathGlobalMap, "cloudGlobal.pcd");
         nh.param<float>("lioven/match_x", match_x, 0.0);

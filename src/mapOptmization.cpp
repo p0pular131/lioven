@@ -1,3 +1,6 @@
+#include <fast_gicp/gicp/fast_gicp.hpp>
+#include <pcl/filters/approximate_voxel_grid.h>
+
 #include "utility.h"
 #include "lioven/cloud_info.h"
 #include "lioven/save_map.h"
@@ -97,6 +100,7 @@ public:
     pcl::PointCloud<PointType>::Ptr laserCloudSurfLast; // surf feature set from odoOptimization
     pcl::PointCloud<PointType>::Ptr laserCloudCornerLastDS; // downsampled corner feature set from odoOptimization
     pcl::PointCloud<PointType>::Ptr laserCloudSurfLastDS; // downsampled surf feature set from odoOptimization
+    pcl::PointCloud<pcl::PointXYZ>::Ptr laserCloudRaw; // riboha
 
     pcl::PointCloud<PointType>::Ptr laserCloudOri;
     pcl::PointCloud<PointType>::Ptr coeffSel;
@@ -117,7 +121,7 @@ public:
     // load해서 사용할 feature_map 변수 선언
     pcl::PointCloud<PointType>::Ptr cornerMap;
     pcl::PointCloud<PointType>::Ptr surfMap;
-    pcl::PointCloud<PointType>::Ptr globalMap;
+    pcl::PointCloud<pcl::PointXYZ>::Ptr globalMap;
 
     pcl::KdTreeFLANN<PointType>::Ptr kdtreeCornerFromMap;
     pcl::KdTreeFLANN<PointType>::Ptr kdtreeSurfFromMap;
@@ -162,6 +166,12 @@ public:
 
     bool kdtree_for_cornerMap = true;
     bool kdtree_for_surfMap = true;
+
+    // riboha
+    // // registration (gicp)
+    fast_gicp::FastGICP<pcl::PointXYZ, pcl::PointXYZ> gicp;
+    pcl::ApproximateVoxelGrid<pcl::PointXYZ> gicpMapVoxelGrid;
+    pcl::ApproximateVoxelGrid<pcl::PointXYZ> gicpSourceVoxelGrid;
 
     mapOptimization()
     {
@@ -216,6 +226,8 @@ public:
         laserCloudCornerLastDS.reset(new pcl::PointCloud<PointType>()); // downsampled corner featuer set from odoOptimization
         laserCloudSurfLastDS.reset(new pcl::PointCloud<PointType>()); // downsampled surf featuer set from odoOptimization
 
+        laserCloudRaw.reset(new pcl::PointCloud<pcl::PointXYZ>()); // riboha
+
         laserCloudOri.reset(new pcl::PointCloud<PointType>());
         coeffSel.reset(new pcl::PointCloud<PointType>());
 
@@ -238,28 +250,46 @@ public:
         ROS_INFO("\033[1;33m----> Loading for Map . . .\033[0m");
         cornerMap.reset(new pcl::PointCloud<PointType>());
         surfMap.reset(new pcl::PointCloud<PointType>());
-        globalMap.reset(new pcl::PointCloud<PointType>());
-        if (pcl::io::loadPCDFile<PointType>(PathTocornerMap, *cornerMap) == -1)
-        {
-            PCL_ERROR("Couldn't read CornerMap.pcd file \n");
-        }
+        globalMap.reset(new pcl::PointCloud<pcl::PointXYZ>());
+        // if (pcl::io::loadPCDFile<PointType>(PathTocornerMap, *cornerMap) == -1)
+        // {
+        //     PCL_ERROR("Couldn't read CornerMap.pcd file \n");
+        // }
 
-        if (pcl::io::loadPCDFile<PointType>(PathTosurfMap, *surfMap) == -1)
-        {
-            PCL_ERROR("Couldn't read SurfMap.pcd file \n");
-        }
-
-        if (pcl::io::loadPCDFile<PointType>(PathGlobalMap, *globalMap) == -1)
+        // if (pcl::io::loadPCDFile<PointType>(PathTosurfMap, *surfMap) == -1)
+        // {
+        //     PCL_ERROR("Couldn't read SurfMap.pcd file \n");
+        // }
+        // riboha
+        if (pcl::io::loadPCDFile<pcl::PointXYZ>(PathGlobalMap, *globalMap) == -1)
         {
             PCL_ERROR("Couldn't read GlobalMap.pcd file \n");
         }
 
         // scan-matching을 진행할 input feature map에 대한 kdtree 1회만 생성
-        kdtreeCornerFromMap.reset(new pcl::KdTreeFLANN<PointType>());
-        kdtreeSurfFromMap.reset(new pcl::KdTreeFLANN<PointType>());
+        // kdtreeCornerFromMap.reset(new pcl::KdTreeFLANN<PointType>());
+        // kdtreeSurfFromMap.reset(new pcl::KdTreeFLANN<PointType>());
 
-        kdtreeCornerFromMap->setInputCloud(cornerMap);
-        kdtreeSurfFromMap->setInputCloud(surfMap);
+        // kdtreeCornerFromMap->setInputCloud(cornerMap);
+        // kdtreeSurfFromMap->setInputCloud(surfMap);
+
+        // set gicp
+        gicp.setMaxCorrespondenceDistance(1.0);
+        gicp.setNumThreads(16);
+        gicp.setCorrespondenceRandomness(20);
+
+        // global map for G-ICP
+        //// downsample
+        double downsample_resolution = 0.4;
+        gicpMapVoxelGrid.setLeafSize(downsample_resolution, downsample_resolution, downsample_resolution);
+        gicpMapVoxelGrid.setInputCloud(globalMap);
+        pcl::PointCloud<pcl::PointXYZ>::Ptr GICPGlobalMap(new pcl::PointCloud<pcl::PointXYZ>);
+        gicpMapVoxelGrid.filter(*GICPGlobalMap);
+        std::cout << "map size" << GICPGlobalMap->size() << std::endl;
+        gicp.setInputTarget(GICPGlobalMap);
+
+        gicpSourceVoxelGrid.setLeafSize(0.2, 0.2, 0.2);
+        ROS_INFO("\033[1;33m----> Map loaded\033[0m");
 
         if(useInitialMatching)
         {
@@ -293,6 +323,9 @@ public:
         pcl::fromROSMsg(msgIn->cloud_corner,  *laserCloudCornerLast);
         pcl::fromROSMsg(msgIn->cloud_surface, *laserCloudSurfLast);
 
+        // get raw cloud
+        pcl::fromROSMsg(msgIn->cloud_deskewed,  *laserCloudRaw); // sc-lio
+
         std::lock_guard<std::mutex> lock(mtx);
 
         static double timeLastProcessing = -1;
@@ -306,29 +339,65 @@ public:
 
             downsampleCurrentScan();
 
-			if(transformTobeMapped[0] < 200) {
-                scan2MapOptimization();
-
-                saveKeyFramesAndFactor();
-
-            // correctPoses();
-
-                publishOdometry();
-            
-            }
-            
-            else {
                 // scan2MapOptimization();
 
-                saveKeyFramesAndFactor();
+            testGICP();
+
+            saveKeyFramesAndFactor();
 
             // correctPoses();
 
-                publishOdometry();
-            }
+            publishOdometry();
 
             // publishFrames();
         }
+    }
+
+    // scan2MapOptimization 함수를 대체
+    void testGICP() 
+    {
+        if (cloudKeyPoses3D->points.empty())
+            return;
+
+        gicp.clearSource();
+        // downsample raw scan
+        gicpSourceVoxelGrid.setInputCloud(laserCloudRaw);
+        pcl::PointCloud<pcl::PointXYZ>::Ptr source(new pcl::PointCloud<pcl::PointXYZ>);
+        gicpSourceVoxelGrid.filter(*source);
+        gicp.setInputSource(source);
+
+        // initial guess for gicp, current pose on the prior map
+        Eigen::Affine3d initialGuess_;
+        Eigen::Matrix4f initialGuess;
+        initialGuess_ = pcl::getTransformation( transformTobeMapped[3], // x
+                                                transformTobeMapped[4], // y
+                                                transformTobeMapped[5], // z
+                                                transformTobeMapped[0], // roll
+                                                transformTobeMapped[1], // pitch
+                                                transformTobeMapped[2]).cast<double>(); // yaw
+        initialGuess = initialGuess_.matrix().cast<float>();
+
+        // scan matching with G-ICP
+        pcl::PointCloud<pcl::PointXYZ>::Ptr aligned(new pcl::PointCloud<pcl::PointXYZ>);
+        gicp.align(*aligned, initialGuess);
+        
+        // get results
+        Eigen::Matrix4d resultT = gicp.getFinalTransformation().cast<double>();
+        // std::cout << resultT << std::endl;
+
+        // set current pose using the result of g-icp
+        transformTobeMapped[3] = resultT(0,3);  // x
+        transformTobeMapped[4] = resultT(1,3);  // y
+        transformTobeMapped[5] = resultT(2,3);  // z
+
+        Eigen::Matrix3d rot = resultT.block<3, 3>(0, 0);
+        Eigen::Vector3d euler_angles = rot.eulerAngles(0, 1, 2);
+        transformTobeMapped[0] = euler_angles(0);
+        transformTobeMapped[1] = euler_angles(1);
+        transformTobeMapped[2] = euler_angles(2);
+
+        // transformUpdate();
+        incrementalOdometryAffineBack = trans2Affine3f(transformTobeMapped);
     }
 
     void gpsHandler(const nav_msgs::Odometry::ConstPtr& gpsMsg)
@@ -487,21 +556,15 @@ public:
         //     publishGlobalMap();
         // }
         publishGlobalMap();
-        if (savePCD == false)
-            return;
 
-        lioven::save_mapRequest  req;
-        lioven::save_mapResponse res;
-
-        if(!saveMapService(req, res)){
-            cout << "Fail to save map" << endl;
-        }
+        return;
     }
 
     void publishGlobalMap()
     {
-        downSizeFilterSurf.setInputCloud(globalMap);
-        downSizeFilterSurf.filter(*globalMap);
+     
+        gicpMapVoxelGrid.setInputCloud(globalMap);
+        gicpMapVoxelGrid.filter(*globalMap);
         publishCloud(pubLaserCloudSurround, globalMap, timeLaserInfoStamp, odometryFrame);
     }
 
@@ -1540,7 +1603,7 @@ public:
         addOdomFactor();
 
         // gps factor
-        addGPSFactor();
+        // addGPSFactor();
 
         // loop factor
         // addLoopFactor();

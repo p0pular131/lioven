@@ -12,13 +12,28 @@
 #include <gtsam/nonlinear/Marginals.h>
 #include <gtsam/nonlinear/Values.h>
 #include <gtsam/inference/Symbol.h>
-
+#include <gtsam/inference/Key.h>
+#include <gtsam/linear/NoiseModel.h>
 #include <gtsam/nonlinear/ISAM2.h>
 #include <gtsam_unstable/nonlinear/IncrementalFixedLagSmoother.h>
+#include <gtsam/nonlinear/NonlinearFactorGraph.h>
 
 using gtsam::symbol_shorthand::X; // Pose3 (x,y,z,r,p,y)
 using gtsam::symbol_shorthand::V; // Vel   (xdot,ydot,zdot)
 using gtsam::symbol_shorthand::B; // Bias  (ax,ay,az,gx,gy,gz)
+
+struct PointXYZIRPYT
+{
+    PCL_ADD_POINT4D
+    PCL_ADD_INTENSITY;                  // preferred way of adding a XYZ+padding
+    float roll;
+    float pitch;
+    float yaw;
+    double time;
+    EIGEN_MAKE_ALIGNED_OPERATOR_NEW   // make sure our new allocators are aligned
+} EIGEN_ALIGN16;                    // enforce SSE padding for correct memory alignment
+
+typedef PointXYZIRPYT  PointTypePose;
 
 class TransformFusion : public ParamServer
 {
@@ -162,6 +177,7 @@ public:
     ros::Subscriber subImu;
     ros::Subscriber subOdometry;
     ros::Subscriber subwheelOdom;
+    ros::Subscriber subGPS;
     ros::Publisher pubImuOdometry;
 
     bool systemInitialized = false;
@@ -180,6 +196,7 @@ public:
     std::deque<sensor_msgs::Imu> imuQueOpt;
     std::deque<sensor_msgs::Imu> imuQueImu;
     std::deque<nav_msgs::Odometry> wheelOdomQue;
+    std::deque<nav_msgs::Odometry> gpsQueue;
 
     gtsam::Pose3 prevPose_;
     gtsam::Vector3 prevVel_;
@@ -206,11 +223,17 @@ public:
     gtsam::Pose3 imu2Lidar = gtsam::Pose3(gtsam::Rot3(1, 0, 0, 0), gtsam::Point3(-extTrans.x(), -extTrans.y(), -extTrans.z()));
     gtsam::Pose3 lidar2Imu = gtsam::Pose3(gtsam::Rot3(1, 0, 0, 0), gtsam::Point3(extTrans.x(), extTrans.y(), extTrans.z()));
 
+    PointType curGPSPoint, prevGPSPoint;
+    float noise_x, noise_y, noise_z;
+    double gpsTimeCurr = 0;
+
     IMUPreintegration()
     {
         subImu      = nh.subscribe<sensor_msgs::Imu>  (imuTopic,                   2000, &IMUPreintegration::imuHandler,      this, ros::TransportHints().tcpNoDelay());
         subOdometry = nh.subscribe<nav_msgs::Odometry>("lio_sam/mapping/odometry_incremental", 5,    &IMUPreintegration::odometryHandler, this, ros::TransportHints().tcpNoDelay());
         subwheelOdom = nh.subscribe<nav_msgs::Odometry>("odom_wheel", 10, &IMUPreintegration::wheelOdomHandler, this, ros::TransportHints().tcpNoDelay());
+        subGPS   = nh.subscribe<nav_msgs::Odometry> (gpsTopic, 200, &IMUPreintegration::gpsHandler, this, ros::TransportHints().tcpNoDelay());
+
         pubImuOdometry = nh.advertise<nav_msgs::Odometry> (odomTopic+"_incremental", 2000);
 
         boost::shared_ptr<gtsam::PreintegrationParams> p = gtsam::PreintegrationParams::MakeSharedU(imuGravity);
@@ -254,6 +277,26 @@ public:
     void wheelOdomHandler(const nav_msgs::Odometry::ConstPtr& odomMsg)
     {
         wheelOdomQue.push_back(*odomMsg);
+    }
+
+    void gpsHandler(const nav_msgs::Odometry::ConstPtr& gpsMsg) 
+    // queue에 저장했다가 time stamp 비교해서 산출하는 방식으로 변경하기
+    // queue를 2개정도 해서 sliding window 느낌으로 하는게 나을듯. 
+    {   
+        gpsTimeCurr = gpsMsg->header.stamp.toSec();
+
+        float gps_x = gpsMsg->pose.pose.position.x;
+        float gps_y = gpsMsg->pose.pose.position.y;
+        float gps_z = gpsMsg->pose.pose.position.z;
+
+        curGPSPoint.x = gps_x + x_initial_;
+        curGPSPoint.y = gps_y + y_initial_;
+        curGPSPoint.z = gps_z + z_initial_;
+
+        noise_x = gpsMsg->pose.covariance[0];
+        noise_y = gpsMsg->pose.covariance[7];
+        noise_z = gpsMsg->pose.covariance[14];
+
     }
 
 
@@ -327,6 +370,7 @@ public:
             
             key = 1;
             systemInitialized = true;
+            prevGPSPoint = curGPSPoint;
             return;
         }
 
@@ -413,28 +457,19 @@ public:
             graphFactors.add(dynamicModelFactor);
         } 
 
-        // add wheel factor
-        // 20hz -> wheel odom, 10hz -> lidar odom
-        // double w_x = 0; 
-        // double w_y = 0;
-        // double w_yaw = 0;
-        // while(!wheelOdomQue.empty())
-        // {
-        //     nav_msgs::Odometry thisWHEEL = wheelOdomQue.back();
-        //     wheelOdomQue.pop_back();
-        //     w_x += thisWHEEL.pose.pose.position.x;
-        //     w_y += thisWHEEL.pose.pose.position.y;
-        //     w_yaw += tf::getYaw(thisWHEEL.pose.pose.orientation);
-        //     if(wheelOdomQue.empty())
-        //     {
-        //         gtsam::Pose3 deltaPose(gtsam::Rot3::Yaw(w_yaw), gtsam::Point3(w_x, w_y, 0.0)); 
-        //         gtsam::BetweenFactor<gtsam::Pose3> wheelOdomFactor(
-        //             X(key - 1), X(key), deltaPose, 
-        //             gtsam::noiseModel::Diagonal::Sigmas(gtsam::Vector6::Constant(dynamicNoise)) 
-        //         );
-        //         graphFactors.add(wheelOdomFactor);
-        //     }
-        // }
+        // add relative gps motion factor 
+        gtsam::Vector6 Vector6;
+        Vector6 << gpsNoise, gpsNoise, 1e6, 1e6, 1e6, 1e6; 
+        double gpsDeltaX = curGPSPoint.x - prevGPSPoint.x;
+        double gpsDeltaY = curGPSPoint.y - prevGPSPoint.y;
+        gtsam::Pose3 relativeMotionGPS(gtsam::Rot3::identity(), gtsam::Point3(gpsDeltaX, gpsDeltaY, 0.0));
+        gtsam::noiseModel::Diagonal::shared_ptr gps_noise = gtsam::noiseModel::Diagonal::Sigmas(Vector6);
+        gtsam::BetweenFactor<gtsam::Pose3> gps_factor(X(key - 1), X(key), relativeMotionGPS, gps_noise);
+        if(gpsNoise != 0.0)
+        {      
+            graphFactors.add(gps_factor);
+        } 
+        prevGPSPoint = curGPSPoint;
 
         // insert predicted values
         gtsam::NavState propState_ = imuIntegratorOpt_->predict(prevState_, prevBias_);
