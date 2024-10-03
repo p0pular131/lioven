@@ -122,7 +122,7 @@ class PointCloudSaverAndMatcher:
         h = np.ones((current_scan.shape[0], 1))
         current_scan = np.concatenate((current_scan, h), axis=1)
 
-        for i in range(len(self.key_poses)):
+        for i in tqdm(range(len(self.key_poses))):
             key_pose = self.key_poses[i]
             result = small_gicp.align(target=target_points,
                                       source=source_points,

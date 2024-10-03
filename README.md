@@ -1,43 +1,29 @@
 # lioven(lioSAM HEven)
 
 ## 1. Initial Match 
-  * 먼저 src로 가서 initialmatch.py의 본선, 예선, 학교 map 중에서 어떤거 load할지 설정.
+* 먼저 livoen params.yaml에서 globalMap, keyPose path 설정
+
+* 시작 위치 잡는거면 useOdom -> 0, 중간에 다시 localization 하는거면 useOdom -> 1
 
 ```
-cd erp_ws/src/heven_m_m/lioven/src
-
-# initialmatch.py안의 두 경로 확인
-global_map_np = read_pcd_file("../data/bonsun/cloudGlobal.pcd")
-key_poses = read_kitty_format_poses("../data/bonsun/optimized_poses.txt")
-```
-* 그 후 해당 directory에서 두 파이썬 파일 실행
-
-```
-python3 initialMatch.py
+roslaunch lioven initialMatch.launch
 ```
 
-  * 실행한 결과로 나온 gicp의 결과값 대입
+* 실행한 결과로 나온 gicp의 결과값 대입
 
 ```
-100%|███████████| 100/100 [00:00<00:00, 156.65it/s]
-result: 6.3478284469361 12.009480060347185 -0.07002332106903895 0.005328962403867491 -0.009412060731663896 1.025610375710519
+[INFO] [1727957990.710005]: Saved first_scan.pcd
+100%|██████████████████████████████████████████████| 360/360 [00:02<00:00, 167.12it/s]
+intial_x: 1.2305603872255186
+intial_y: 2.070963878512688
+intial_z: 0.054528479681173664
+intial_roll: 0.01939314451226561
+intial_pitch: -0.015228127411551773
+intial_yaw: 0.8433777031570235
 ```
-  * 위 예시에서나온 결과인 x=6.3478284469361, y=12.009480060347185, z=-0.07002332106903895 roll=0.005328962403867491, pitch =-0.009412060731663896, yaw=1.025610375710519를 아래와같이 대입하면 됩니다.
-    - intial_x: 6.3478284469361
-    - intial_y: 12.009480060347185
-    - intial_z: -0.07002332106903895
-    - intial_roll: 0.005328962403867491
-    - intial_pitch: -0.009412060731663896
-    - initial_yaw: 1.025610375710519
 
 ## 2. Run Localization
-* param.yaml에서 마찬가지로 본선, 예선, 학교 map 경로 확인
 
-```
-  PathCornerMap: "/home/heven/erp_ws/src/heven_m_m/lioven/data/bonsun/cloudCorner.pcd" 
-  PathSurfMap: "/home/heven/erp_ws/src/heven_m_m/lioven/data/bonsun/cloudSurf.pcd"
-```
-* 런치파일 실행
 ```
 roslaunch lioven run.launch
 ```
