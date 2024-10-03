@@ -1,6 +1,21 @@
 lioven:
   # Load할 Mpa의 경로 (절대경로)
-  PathGlobalMap: "/home/popular/catkin_ws/src/lioven/data/bonsun/cloudGlobal.pcd"
+  PathGlobalMap: "/home/popular/catkin_ws/src/lioven/data/yesun/cloudGlobal.pcd"
+  KeyPosePath: "/home/popular/catkin_ws/src/lioven/data/yesun/optimized_poses.txt"
+  
+  # initialmatch.py 관련 param
+  # 중간에 임의의 구역에서 localization 해야할 때 useOdom -> 1
+  # 혹시나 멈춘 구간 있으면 다시 시작하는 곳의 odometry 그대로 사용
+  useOdom: 1
+  position: 
+    x: 0.0
+    y: 0.0
+    z: 0.0
+  orientation: 
+    x: 0.0
+    y: 0.0
+    z: 0.0
+    w: 0.0
 
   # score "0.15"이하(엔간하면) initial + gicp pose 더해서 넣어주면 됨. 
   useInitialMatching: true
@@ -12,13 +27,22 @@ lioven:
   # intial_pitch: -0.014915449700933614
   # intial_yaw: 0.8232776300277191
 
+  # yesun1
+  intial_x: 1.2316522272050494
+  intial_y: 2.07077091292459
+  intial_z: 0.054535752796144955
+  intial_roll: 0.01945711175238082
+  intial_pitch: -0.015266900594633537
+  intial_yaw: 0.8433165674336102
+
+
   # bonsun1
-  intial_x: 1.522245546227218
-  intial_y: 3.1037546293023355
-  intial_z: -0.3211895192400892
-  intial_roll: -0.012104886892421349
-  intial_pitch: -0.015367727130847886
-  intial_yaw: 1.0848304308990147
+  # intial_x: 1.522245546227218
+  # intial_y: 3.1037546293023355
+  # intial_z: -0.3211895192400892
+  # intial_roll: -0.012104886892421349
+  # intial_pitch: -0.015367727130847886
+  # intial_yaw: 1.0848304308990147
 
   # Topics
   pointCloudTopic: "velodyne_points"               # Point cloud data

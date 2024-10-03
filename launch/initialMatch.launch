@@ -2,5 +2,5 @@
     <!-- Parameters -->
     <rosparam file="$(find lioven)/config/params.yaml" command="load" />
     <!-- initialMatch node -->
-    <node pkg="lioven" type="initialMatch" name="initialMatch_node" output="screen"/>
+    <node pkg="lioven" type="initialmatch.py" name="initialMatch_node" output="screen"/>
 </launch>

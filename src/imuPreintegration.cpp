@@ -323,6 +323,10 @@ public:
         float av_x = odomMsg->twist.twist.angular.x;
         float av_y = odomMsg->twist.twist.angular.y;
         float av_z = odomMsg->twist.twist.angular.z;
+        // yesun ternel
+        if(p_x > 170 && p_y < -60) {
+            gpsNoise = 0.0;
+        }
 
         bool degenerate = (int)odomMsg->pose.covariance[0] == 1 ? true : false;
         gtsam::Pose3 lidarPose = gtsam::Pose3(gtsam::Rot3::Quaternion(r_w, r_x, r_y, r_z), gtsam::Point3(p_x, p_y, p_z));
@@ -469,6 +473,9 @@ public:
         {      
             graphFactors.add(gps_factor);
         } 
+        else {
+            ROS_INFO("Pass GPS. . .");
+        }
         prevGPSPoint = curGPSPoint;
 
         // insert predicted values
