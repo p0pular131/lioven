@@ -340,6 +340,8 @@ public:
             downsampleCurrentScan();
 
                 // scan2MapOptimization();
+            
+            testOverlap();
 
             testGICP();
 
@@ -351,6 +353,54 @@ public:
 
             // publishFrames();
         }
+    }
+
+    void testOverlap() 
+    {
+        if (cloudKeyPoses3D->points.empty())
+            return;
+
+        // 각 구역의 icp score를 저장할 vector
+        std::vector<double> scores(4);
+        // sector를 분할할 기준 각도
+        int sectorAngle = 90;
+        std::cout << "=============================" << '\n';
+        for(int i=0;i<4;i++) {
+            gicp.clearSource();
+            // downsample raw scan
+            pcl::PointCloud<pcl::PointXYZ>::Ptr sectorCloud(new pcl::PointCloud<pcl::PointXYZ>);
+            for (const auto& point : laserCloudRaw->points) {
+                double angle = atan2(point.y, point.x) * 180.0 / M_PI; // 라디안을 도로 변환
+                if (angle < 0) angle += 360; // 음수 각도 보정
+
+                if (angle >= i * sectorAngle && angle < (i + 1) * sectorAngle) {
+                    sectorCloud->points.push_back(point);
+                }
+            }
+            gicpSourceVoxelGrid.setInputCloud(sectorCloud);
+            pcl::PointCloud<pcl::PointXYZ>::Ptr source(new pcl::PointCloud<pcl::PointXYZ>);
+            gicpSourceVoxelGrid.filter(*source);
+            gicp.setInputSource(source);
+
+            // initial guess for gicp, current pose on the prior map
+            Eigen::Affine3d initialGuess_;
+            Eigen::Matrix4f initialGuess;
+            initialGuess_ = pcl::getTransformation( transformTobeMapped[3], // x
+                                                    transformTobeMapped[4], // y
+                                                    transformTobeMapped[5], // z
+                                                    transformTobeMapped[0], // roll
+                                                    transformTobeMapped[1], // pitch
+                                                    transformTobeMapped[2]).cast<double>(); // yaw
+            initialGuess = initialGuess_.matrix().cast<float>();
+
+            // scan matching with G-ICP
+            pcl::PointCloud<pcl::PointXYZ>::Ptr aligned(new pcl::PointCloud<pcl::PointXYZ>);
+            gicp.align(*aligned, initialGuess);
+            // 현재 구역에서의 score를 vector에 저장 
+            scores[i] = gicp.getFitnessScore();
+            std::cout << "Sector " << i << " ICP Score: " << scores[i] << '\n';
+        }
+        
     }
 
     // scan2MapOptimization 함수를 대체
