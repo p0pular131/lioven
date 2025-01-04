@@ -173,6 +173,9 @@ public:
     pcl::ApproximateVoxelGrid<pcl::PointXYZ> gicpMapVoxelGrid;
     pcl::ApproximateVoxelGrid<pcl::PointXYZ> gicpSourceVoxelGrid;
 
+    double averageTime=0.0;
+    int timeCnt=0;
+
     mapOptimization()
     {
         ISAM2Params parameters;
@@ -331,6 +334,8 @@ public:
         static double timeLastProcessing = -1;
         if (timeLaserInfoCur - timeLastProcessing >= mappingProcessInterval)
         {
+            auto start = std::chrono::high_resolution_clock::now();
+
             timeLastProcessing = timeLaserInfoCur;
 
             updateInitialGuess();
@@ -352,6 +357,15 @@ public:
             publishOdometry();
 
             // publishFrames();
+
+            auto end = std::chrono::high_resolution_clock::now(); // 종료 시간
+            std::chrono::duration<double> elapsed = end - start;
+            if(elapsed.count() < 0.5) {
+                double totalTime = averageTime*timeCnt + elapsed.count();
+                timeCnt++;
+                averageTime = totalTime/timeCnt;
+                std::cout << "Handler average execution time: " << averageTime << " seconds.\n";
+            } 
         }
     }
 
