@@ -254,15 +254,15 @@ public:
         cornerMap.reset(new pcl::PointCloud<PointType>());
         surfMap.reset(new pcl::PointCloud<PointType>());
         globalMap.reset(new pcl::PointCloud<pcl::PointXYZ>());
-        // if (pcl::io::loadPCDFile<PointType>(PathTocornerMap, *cornerMap) == -1)
-        // {
-        //     PCL_ERROR("Couldn't read CornerMap.pcd file \n");
-        // }
+        if (pcl::io::loadPCDFile<PointType>(PathTocornerMap, *cornerMap) == -1)
+        {
+            PCL_ERROR("Couldn't read CornerMap.pcd file \n");
+        }
 
-        // if (pcl::io::loadPCDFile<PointType>(PathTosurfMap, *surfMap) == -1)
-        // {
-        //     PCL_ERROR("Couldn't read SurfMap.pcd file \n");
-        // }
+        if (pcl::io::loadPCDFile<PointType>(PathTosurfMap, *surfMap) == -1)
+        {
+            PCL_ERROR("Couldn't read SurfMap.pcd file \n");
+        }
         // riboha
         if (pcl::io::loadPCDFile<pcl::PointXYZ>(PathGlobalMap, *globalMap) == -1)
         {
@@ -270,11 +270,11 @@ public:
         }
 
         // scan-matching을 진행할 input feature map에 대한 kdtree 1회만 생성
-        // kdtreeCornerFromMap.reset(new pcl::KdTreeFLANN<PointType>());
-        // kdtreeSurfFromMap.reset(new pcl::KdTreeFLANN<PointType>());
+        kdtreeCornerFromMap.reset(new pcl::KdTreeFLANN<PointType>());
+        kdtreeSurfFromMap.reset(new pcl::KdTreeFLANN<PointType>());
 
-        // kdtreeCornerFromMap->setInputCloud(cornerMap);
-        // kdtreeSurfFromMap->setInputCloud(surfMap);
+        kdtreeCornerFromMap->setInputCloud(cornerMap);
+        kdtreeSurfFromMap->setInputCloud(surfMap);
 
         // set gicp
         gicp.setMaxCorrespondenceDistance(1.0);
@@ -371,50 +371,68 @@ public:
 
     void testOverlap() 
     {
-        if (cloudKeyPoses3D->points.empty())
-            return;
+        auto start = std::chrono::high_resolution_clock::now();
+        std::cout<< "===========================\n";
+        updatePointAssociateToMap();
+        int count[4] = {0}; 
+        int totalPoints[4] = {0}; 
 
-        // 각 구역의 icp score를 저장할 vector
-        std::vector<double> scores(4);
-        // sector를 분할할 기준 각도
-        int sectorAngle = 90;
-        std::cout << "=============================" << '\n';
-        for(int i=0;i<4;i++) {
-            gicp.clearSource();
-            // downsample raw scan
-            pcl::PointCloud<pcl::PointXYZ>::Ptr sectorCloud(new pcl::PointCloud<pcl::PointXYZ>);
-            for (const auto& point : laserCloudRaw->points) {
-                double angle = atan2(point.y, point.x) * 180.0 / M_PI; // 라디안을 도로 변환
-                if (angle < 0) angle += 360; // 음수 각도 보정
+        #pragma omp parallel for num_threads(numberOfCores)
+        for (int i=0;i<laserCloudSurfLastDSNum;i++)
+        {
+            PointType pointOri, pointSel;
+            std::vector<int> pointSearchInd;
+            std::vector<float> pointSearchSqDis;
 
-                if (angle >= i * sectorAngle && angle < (i + 1) * sectorAngle) {
-                    sectorCloud->points.push_back(point);
-                }
+            pointOri = laserCloudSurfLastDS->points[i];
+            pointAssociateToMap(&pointOri, &pointSel);
+
+            float angle = atan2(pointOri.y, pointOri.x);
+            if (angle < 0) angle += 2 * M_PI; 
+
+            int sector = static_cast<int>(angle / (M_PI / 2)) % 4;
+
+            #pragma omp atomic
+            totalPoints[sector]++;
+
+            kdtreeSurfFromMap->nearestKSearch(pointSel, 1, pointSearchInd, pointSearchSqDis);
+
+            if (pointSearchSqDis[0] < 0.1) {
+                #pragma omp atomic
+                count[sector]++;
             }
-            gicpSourceVoxelGrid.setInputCloud(sectorCloud);
-            pcl::PointCloud<pcl::PointXYZ>::Ptr source(new pcl::PointCloud<pcl::PointXYZ>);
-            gicpSourceVoxelGrid.filter(*source);
-            gicp.setInputSource(source);
-
-            // initial guess for gicp, current pose on the prior map
-            Eigen::Affine3d initialGuess_;
-            Eigen::Matrix4f initialGuess;
-            initialGuess_ = pcl::getTransformation( transformTobeMapped[3], // x
-                                                    transformTobeMapped[4], // y
-                                                    transformTobeMapped[5], // z
-                                                    transformTobeMapped[0], // roll
-                                                    transformTobeMapped[1], // pitch
-                                                    transformTobeMapped[2]).cast<double>(); // yaw
-            initialGuess = initialGuess_.matrix().cast<float>();
-
-            // scan matching with G-ICP
-            pcl::PointCloud<pcl::PointXYZ>::Ptr aligned(new pcl::PointCloud<pcl::PointXYZ>);
-            gicp.align(*aligned, initialGuess);
-            // 현재 구역에서의 score를 vector에 저장 
-            scores[i] = gicp.getFitnessScore();
-            std::cout << "Sector " << i << " ICP Score: " << scores[i] << '\n';
         }
+
+        float overlapRate[4] = {0.0f};
+        double totalCount = 0.0;
+        double totalPoint = 0.0;
+        for(int i=0;i<4;i++) {
+            totalPoint += totalPoints[i];
+        }
+
+        for (int i=0;i<4;i++) {
+            totalCount += static_cast<float>(count[i]);
+            if (totalPoints[i] > 0) {
+                overlapRate[i] = static_cast<float>(count[i]) / totalPoints[i];
+            }
+        }
+
+        double averageOverlap = totalCount / totalPoint;
         
+        for (int i = 0; i < 4; i++) {
+            std::cout << "Sector " << i << " Overlap Rate: " << overlapRate[i] << "\n";
+        }
+        std::cout << "Average overlap Rate: " << averageOverlap << "\n";
+        auto end = std::chrono::high_resolution_clock::now();
+        std::chrono::duration<double> elapsed = end - start;
+
+        // 평균 실행 시간 계산
+        if (elapsed.count() < 0.5) {
+            double totalTime = averageTime * timeCnt + elapsed.count();
+            timeCnt++;
+            averageTime = totalTime / timeCnt;
+            std::cout << "Handler average execution time: " << averageTime << " seconds.\n";
+        } 
     }
 
     // scan2MapOptimization 함수를 대체
